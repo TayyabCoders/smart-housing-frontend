@@ -14,6 +14,7 @@ import time from "./time";
 import chat from "./chat";
 import voting from "./voting";
 import complaints from "./complaints";
+import chatbot from "./chatbot";
 
 const messages = {
   auth,
@@ -32,6 +33,7 @@ const messages = {
   chat,
   voting,
   complaints,
+  chatbot,
 } as const;
 
 export default messages;

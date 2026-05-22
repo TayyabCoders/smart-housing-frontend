@@ -128,7 +128,9 @@ export function Sidebar({ className }: SidebarProps) {
       {/* Navigation Items */}
       <nav className="flex-1 p-2 space-y-1 overflow-y-auto overflow-x-hidden">
         {navItems.map((item: any) => {
-          const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+          const isActive = item.href === "/" 
+            ? pathname === "/" 
+            : pathname === item.href || pathname.startsWith(`${item.href}/`);
           const Icon = pickIcon(item.title);
 
           return (
