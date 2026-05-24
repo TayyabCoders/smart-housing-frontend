@@ -54,6 +54,18 @@ const layout = {
       { href: "/chat", title: "Chats" },
       { href: "/voting", title: "Voting System" },
       { href: "/complaints", title: "Complaint System" },
+      {
+        href: "/surveillance",
+        title: "AI Surveillance",
+        children: [
+          { href: "/surveillance", title: "Overview" },
+          { href: "/surveillance/live", title: "Live Monitoring" },
+          { href: "/surveillance/vehicle", title: "Vehicle Recognition" },
+          { href: "/surveillance/face", title: "Facial Recognition" },
+          { href: "/surveillance/alerts", title: "Security Alerts" },
+          { href: "/surveillance/logs", title: "Entry Logs" },
+        ]
+      },
       { href: "/chatbot", title: "Chatbot" }
     ],
   },

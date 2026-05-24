@@ -28,6 +28,21 @@ const layout = {
       { href: "/dashboard", title: "ڈیش بورڈ" },
       { href: "/users", title: "صارفین" },
       { href: "/chat", title: "چیٹ" },
+      { href: "/voting", title: "ووٹنگ سسٹم" },
+      { href: "/complaints", title: "شکایات سسٹم" },
+      {
+        href: "/surveillance",
+        title: "AI سريلينس",
+        children: [
+          { href: "/surveillance", title: "جائزہ" },
+          { href: "/surveillance/live", title: "لائیو مانیٹرنگ" },
+          { href: "/surveillance/vehicle", title: "گاڑی کی پہچان" },
+          { href: "/surveillance/face", title: "چہرے کی پہچان" },
+          { href: "/surveillance/alerts", title: "سیکیورٹی الرٹس" },
+          { href: "/surveillance/logs", title: "انٹری لاگز" },
+        ]
+      },
+      { href: "/chatbot", title: "چیٹ بوٹ" }
     ],
   },
 

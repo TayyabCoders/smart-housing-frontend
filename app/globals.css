@@ -387,3 +387,17 @@
   left: 2rem;
   right: auto;
 }
+
+/* Scan animation for live camera feed */
+@keyframes scan {
+  0% {
+    top: 0;
+  }
+  100% {
+    top: 100%;
+  }
+}
+
+.animate-scan {
+  animation: scan 2s linear infinite;
+}

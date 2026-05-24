@@ -12,6 +12,7 @@ import metadata from "./metadata";
 import navigation from "./navigation";
 import time from "./time";
 import chat from "./chat";
+import surveillance from "./surveillance";
 
 const messages = {
   auth,
@@ -28,6 +29,7 @@ const messages = {
   navigation,
   time,
   chat,
+  surveillance,
 } as const;
 
 export default messages;
