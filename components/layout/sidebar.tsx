@@ -5,10 +5,19 @@ import Image from "next/image";
 import {
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   HomeIcon,
   UserIcon,
   BarChartIcon,
   LogoutIcon,
+  CameraIcon,
+  VideoIcon,
+  CarIcon,
+  ScanFaceIcon,
+  ShieldAlertIcon,
+  ActivityIcon,
+  FileTextIcon,
+  LayoutDashboardIcon,
 } from "@/lib/icons/icons";
 import { Button } from "@/components/ui/button/button";
 import { cn } from "@/lib/tailwindUtils/utils";
@@ -29,6 +38,8 @@ export function Sidebar({ className }: SidebarProps) {
   const { state, toggleSidebar, responsive } = useLayout();
   const isCollapsed = state.sidebarCollapsed;
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [manuallyClosed, setManuallyClosed] = useState<string | null>(null);
 
   // Responsive behavior: auto-collapse on tablet, hide collapse button on mobile
   const { isTablet, isDesktop, isLargeDesktop } = responsive;
@@ -41,7 +52,19 @@ export function Sidebar({ className }: SidebarProps) {
     if (key.includes("home") || key.includes("ہوم")) return HomeIcon;
     if (key.includes("dashboard") || key.includes("ڈیش بورڈ")) return BarChartIcon;
     if (key.includes("user") || key.includes("صارف")) return UserIcon;
+    if (key.includes("surveillance") || key.includes("سريلينس")) return CameraIcon;
     return HomeIcon;
+  };
+
+  const pickChildIcon = (title: string) => {
+    const key = title.toLowerCase();
+    if (key.includes("overview") || key.includes("جائزہ") || key.includes("نظرة عامة")) return LayoutDashboardIcon;
+    if (key.includes("live") || key.includes("لائیو") || key.includes("مباشرة")) return VideoIcon;
+    if (key.includes("vehicle") || key.includes("گاڑی") || key.includes("مركبات")) return CarIcon;
+    if (key.includes("facial") || key.includes("face") || key.includes("چہرے") || key.includes("وجوه")) return ScanFaceIcon;
+    if (key.includes("alert") || key.includes("الرٹس") || key.includes("تنبيهات")) return ShieldAlertIcon;
+    if (key.includes("log") || key.includes("لاگز") || key.includes("سجلات")) return FileTextIcon;
+    return BarChartIcon;
   };
 
   // Detect RTL (Urdu) layout (unchanged)
@@ -54,7 +77,7 @@ export function Sidebar({ className }: SidebarProps) {
       // Remove auth-related cookies (now via utility)
       removeAuthCookies();
       toast.success("Logged out successfully");
-      router.push("/login");
+      router.push("/auth/login");
     } catch (error) {
       toast.error("Logout failed");
     } finally {
@@ -128,8 +151,100 @@ export function Sidebar({ className }: SidebarProps) {
       {/* Navigation Items */}
       <nav className="flex-1 p-2 space-y-1 overflow-y-auto overflow-x-hidden">
         {navItems.map((item: any) => {
-          const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+          const hasChildren = item.children && Array.isArray(item.children);
+          const isActive = item.href === "/"
+            ? pathname === "/"
+            : pathname === item.href;
           const Icon = pickIcon(item.title);
+          const isPathMatch = pathname.startsWith(`${item.href}/`);
+          const isOpen = (openDropdown === item.href || isPathMatch) && manuallyClosed !== item.href;
+
+          if (hasChildren) {
+            return (
+              <div key={item.href}>
+                <button
+                  onClick={() => {
+                    if (isOpen) {
+                      setOpenDropdown(null);
+                      setManuallyClosed(item.href);
+                    } else {
+                      setOpenDropdown(item.href);
+                      setManuallyClosed(null);
+                    }
+                  }}
+                  className={cn(
+                    "w-full flex rounded-lg font-medium transition-all group",
+                    "hover:bg-accent hover:text-accent-foreground",
+                    "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+                    isTablet ? "text-xs" : "text-sm",
+                    {
+                      "bg-accent text-accent-foreground shadow-sm": isActive,
+                      "text-muted-foreground": !isActive,
+                      "justify-center p-3 w-12 h-12 mx-auto": isCollapsed,
+                      "justify-between items-center": !isCollapsed,
+                      "gap-3 px-3 py-2.5": !isCollapsed && !isRTL && (isDesktop || isLargeDesktop),
+                      "gap-2 px-2 py-2": !isCollapsed && !isRTL && isTablet,
+                      "gap-2 px-3 py-2.5": !isCollapsed && isRTL,
+                    }
+                  )}
+                  title={isCollapsed ? item.title : undefined}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="relative flex items-center justify-center">
+                      <Icon className={cn(isTablet ? "h-3.5 w-3.5" : "h-4 w-4", "flex-shrink-0 transition-opacity group-hover:opacity-0")} />
+                      {!isCollapsed && (
+                        <ChevronRight
+                          className={cn(
+                            "absolute transition-opacity opacity-0 group-hover:opacity-100",
+                            isOpen ? "rotate-90" : ""
+                          )}
+                        />
+                      )}
+                    </div>
+                    {!isCollapsed && (
+                      <span
+                        className={cn(
+                          "whitespace-normal line-clamp-2",
+                          isRTL ? "text-right w-full" : "truncate"
+                        )}
+                      >
+                        {item.title}
+                      </span>
+                    )}
+                  </div>
+                </button>
+                {!isCollapsed && isOpen && (
+                  <div className="mt-1 ml-4 space-y-1">
+                    {item.children.map((child: any) => {
+                      const isChildActive = pathname === child.href;
+                      const ChildIcon = pickChildIcon(child.title);
+                      return (
+                        <Link
+                          key={child.href}
+                          href={child.href}
+                          className={cn(
+                            "flex rounded-lg font-medium transition-all",
+                            "hover:bg-accent hover:text-accent-foreground",
+                            "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+                            isTablet ? "text-xs" : "text-sm",
+                            {
+                              "bg-accent text-accent-foreground shadow-sm": isChildActive,
+                              "text-muted-foreground": !isChildActive,
+                              "justify-start items-center gap-3 px-3 py-2": !isRTL,
+                              "justify-end items-center gap-3 px-3 py-2": isRTL,
+                            }
+                          )}
+                        >
+                          <ChildIcon className={cn(isTablet ? "h-3.5 w-3.5" : "h-4 w-4", "flex-shrink-0")} />
+                          <span className="whitespace-normal line-clamp-2">{child.title}</span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          }
 
           return (
             <Link
@@ -139,14 +254,11 @@ export function Sidebar({ className }: SidebarProps) {
                 "flex rounded-lg font-medium transition-all",
                 "hover:bg-accent hover:text-accent-foreground",
                 "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
-                // Responsive text sizing
                 isTablet ? "text-xs" : "text-sm",
                 {
                   "bg-accent text-accent-foreground shadow-sm": isActive,
                   "text-muted-foreground": !isActive,
-                  // Collapsed styles
                   "justify-center p-3 w-12 h-12 mx-auto": isCollapsed,
-                  // Expanded styles with responsive padding
                   "justify-start items-center": !isCollapsed,
                   "gap-3 px-3 py-2.5": !isCollapsed && !isRTL && (isDesktop || isLargeDesktop),
                   "gap-2 px-2 py-2": !isCollapsed && !isRTL && isTablet,

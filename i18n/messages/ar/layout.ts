@@ -28,6 +28,21 @@ const layout = {
       { href: "/dashboard", title: "لوحة التحكم" },
       { href: "/users", title: "المستخدمون" },
       { href: "/chat", title: "دردشة" },
+      { href: "/voting", title: "نظام التصويت" },
+      { href: "/complaints", title: "نظام الشكاوى" },
+      {
+        href: "/surveillance",
+        title: "AI المراقبة",
+        children: [
+          { href: "/surveillance", title: "نظرة عامة" },
+          { href: "/surveillance/live", title: "المراقبة المباشرة" },
+          { href: "/surveillance/vehicle", title: "التعرف على المركبات" },
+          { href: "/surveillance/face", title: "التعرف على الوجوه" },
+          { href: "/surveillance/alerts", title: "تنبيهات الأمان" },
+          { href: "/surveillance/logs", title: "سجلات الدخول" },
+        ]
+      },
+      { href: "/chatbot", title: "روبوت الدردشة" }
     ],
   },
 

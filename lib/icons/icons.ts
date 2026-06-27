@@ -51,6 +51,7 @@ import {
   Camera,
   Mail,
   Shield,
+  ShieldAlert,
   Globe,
   MoreHorizontal,
   ArrowLeft,
@@ -72,6 +73,10 @@ import {
   Server,
   CheckCircle,
   XCircle,
+  Video,
+  Car,
+  ScanFace,
+  LayoutDashboard,
   type LucideIcon,
   type LucideProps,
 } from "lucide-react";
@@ -123,6 +128,7 @@ export {
   Camera,
   Mail,
   Shield,
+  ShieldAlert,
   Globe,
   MoreHorizontal,
   ArrowLeft,
@@ -144,6 +150,10 @@ export {
   Server,
   CheckCircle,
   XCircle,
+  Video,
+  Car,
+  ScanFace,
+  LayoutDashboard,
   type LucideIcon,
   type LucideProps,
 };
@@ -176,9 +186,16 @@ export const AlertIcon = AlertTriangle;
 export const BugIcon = Bug;
 export const HelpIcon = HelpCircle;
 export const FileIcon = FileText;
+export const FileTextIcon = FileText;
 export const ImageIcon = Image;
+export const CameraIcon = Camera;
 export const MailIcon = Mail;
 export const ShieldIcon = Shield;
+export const ShieldAlertIcon = ShieldAlert;
+export const VideoIcon = Video;
+export const CarIcon = Car;
+export const ScanFaceIcon = ScanFace;
+export const LayoutDashboardIcon = LayoutDashboard;
 export const GlobeIcon = Globe;
 export const MoreIcon = MoreHorizontal;
 export const BackIcon = ArrowLeft;
