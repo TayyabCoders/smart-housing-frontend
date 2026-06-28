@@ -55,26 +55,14 @@ const dashboard = {
   // Metrics Cards
   metrics: {
     totalUsers: "إجمالي المستخدمين",
-    activeUsers: "المستخدمون النشطون",
-    revenue: "الإيرادات",
-    conversionRate: "معدل التحويل",
-    orders: "الطلبات",
-    growth: "النمو",
-    bounceRate: "معدل الارتداد",
-    pageViews: "عدد مشاهدات الصفحة",
-    sessions: "الجلسات",
-    avgSessionDuration: "متوسط مدة الجلسة",
-    newUsers: "المستخدمون الجدد",
-    returningUsers: "المستخدمون العائدون",
+    totalComplaints: "إجمالي الشكاوى",
+    pendingComplaints: "الشكاوى المعلقة",
+    totalVoters: "إجمالي الناخبين",
     descriptions: {
       totalUsers: "إجمالي المستخدمين المسجلين",
-      activeUsers: "عدد المستخدمين النشطين حالياً",
-      revenue: "إجمالي الإيرادات المولدة",
-      conversionRate: "النسبة المئوية لمعدل التحويل",
-      orders: "عدد الطلبات",
-      growth: "النسبة المئوية للنمو",
-      bounceRate: "النسبة المئوية لمعدل الارتداد",
-      pageViews: "إجمالي مشاهدات الصفحة",
+      totalComplaints: "إجمالي الشكاوى المقدمة",
+      pendingComplaints: "الشكاوى بانتظار الحل",
+      totalVoters: "إجمالي الناخبين المسجلين",
     },
     fromLastMonth: "منذ الشهر الماضي",
     loading: "جارٍ تحميل المقاييس...",
@@ -82,22 +70,9 @@ const dashboard = {
 
   // Chart Titles and Descriptions
   charts: {
-    revenueTrend: {
-      title: "نظرة عامة على الإيرادات",
-      description: "الإيرادات الشهرية ونمو المستخدمين",
-      badge: "محدث",
-    },
-    userActivity: {
-      title: "نشاط المستخدم",
-      description: "المستخدمون النشطون يومياً ومعدلات التفاعل",
-    },
-    salesComparison: {
-      title: "أداء المبيعات",
-      description: "مقارنة مبيعات ربع سنوية",
-    },
-    trafficSources: {
-      title: "مصادر الزيارات",
-      description: "تحليل مصادر زيارات الموقع",
+    complaintRequests: {
+      title: "طلبات الشكاوى",
+      description: "توزيع حالة الشكاوى",
     },
     performanceMetrics: {
       title: "مقاييس الأداء",
@@ -123,19 +98,11 @@ const dashboard = {
         nov: "نوفمبر",
         dec: "ديسمبر",
       },
-      products: {
-        productA: "المنتج A",
-        productB: "المنتج B",
-        productC: "المنتج C",
-        productD: "المنتج D",
-        productE: "المنتج E",
-      },
-      traffic: {
-        direct: "مباشر",
-        organicSearch: "بحث عضوي",
-        socialMedia: "وسائل التواصل",
-        email: "البريد الإلكتروني",
-        referral: "إحالة",
+      complaints: {
+        pending: "قيد الانتظار",
+        inProgress: "قيد المعالجة",
+        resolved: "تم الحل",
+        rejected: "مرفوض",
       },
       labels: {
         revenue: "الإيرادات",
@@ -416,6 +383,37 @@ const dashboard = {
         date: "2024-01-13",
       },
     },
+  },
+
+  // Complaint Management
+  complaints: {
+    title: "إدارة الشكاوى",
+    description: "إدارة وتتبع طلبات الشكاوى",
+    table: {
+      username: "اسم المستخدم",
+      gender: "الجنس",
+      complaintDetail: "تفاصيل الشكوى",
+      trackingId: "رقم التتبع",
+      status: "الحالة",
+      createdAt: "تم الإنشاء في",
+      updatedAt: "تم التحديث في",
+      actions: "الإجراءات",
+    },
+    gender: {
+      male: "ذكر",
+      female: "أنثى",
+      other: "آخر",
+    },
+    status: {
+      pending: "قيد الانتظار",
+      inProgress: "قيد المعالجة",
+      resolved: "تم الحل",
+      rejected: "مرفوض",
+    },
+    actions: {
+      changeStatus: "تغيير الحالة",
+    },
+    noData: "لم يتم العثور على شكاوى",
   },
 
   // Common text fragments

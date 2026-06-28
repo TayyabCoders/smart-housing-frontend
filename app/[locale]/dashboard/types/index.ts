@@ -17,15 +17,23 @@ export interface Order {
   date: string;
 }
 
+export interface Complaint {
+  id: string;
+  username: string;
+  gender: "male" | "female" | "other";
+  complaintDetail: string;
+  trackingId: string;
+  status: "pending" | "in_progress" | "resolved" | "rejected";
+  date: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface MetricData {
   totalUsers: number;
-  activeSessions: number;
-  revenue: number;
-  conversionRate: number;
-  orders: number;
-  growth: number;
-  bounceRate: number;
-  pageViews: number;
+  totalComplaints: number;
+  pendingComplaints: number;
+  totalVoters: number;
 }
 
 export interface ChartDataPoint {
@@ -76,5 +84,6 @@ export interface DashboardProps {
     metrics?: MetricData;
     products?: Product[];
     orders?: Order[];
+    complaints?: Complaint[];
   };
 }

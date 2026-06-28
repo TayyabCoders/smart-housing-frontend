@@ -26,13 +26,9 @@ export function MetricsSection({ data, isLoading = false }: MetricsSectionProps)
   // Default mock data if none provided
   const defaultData: MetricData = {
     totalUsers: 12543,
-    activeSessions: 2341,
-    revenue: 45230.5,
-    conversionRate: 3.2,
-    orders: 1832,
-    growth: 12.5,
-    bounceRate: 34.2,
-    pageViews: 98765,
+    totalComplaints: 832,
+    pendingComplaints: 145,
+    totalVoters: 5421,
   };
 
   const metricsData = data || defaultData;
@@ -41,78 +37,40 @@ export function MetricsSection({ data, isLoading = false }: MetricsSectionProps)
     {
       title: t("metrics.totalUsers"),
       value: metricsData.totalUsers,
-      change: 12.5,
-      changeType: "increase" as const,
+      // change: 12.5,
+      // changeType: "increase" as const,
       icon: Users,
       color: "info" as const,
       description: t("metrics.descriptions.totalUsers"),
     },
     {
-      title: t("metrics.activeUsers"),
-      value: metricsData.activeSessions,
-      change: 8.2,
-      changeType: "increase" as const,
+      title: t("metrics.totalComplaints"),
+      value: metricsData.totalComplaints,
+      // change: 8.2,
+      // changeType: "increase" as const,
       icon: Activity,
       color: "success" as const,
-      description: t("metrics.descriptions.activeUsers"),
+      description: t("metrics.descriptions.totalComplaints"),
     },
     {
-      title: t("metrics.revenue"),
-      value: metricsData.revenue,
-      change: 15.3,
-      changeType: "increase" as const,
+      title: t("metrics.pendingComplaints"),
+      value: metricsData.pendingComplaints,
+      // change: 15.3,
+      // changeType: "increase" as const,
       icon: DollarSign,
-      prefix: "$",
+      // prefix: "$",
       color: "success" as const,
-      description: t("metrics.descriptions.revenue"),
+      description: t("metrics.descriptions.pendingComplaints"),
     },
     {
-      title: t("metrics.conversionRate"),
-      value: metricsData.conversionRate,
-      change: -2.1,
-      changeType: "decrease" as const,
+      title: t("metrics.totalVoters"),
+      value: metricsData.totalVoters,
+      // change: -2.1,
+      // changeType: "decrease" as const,
       icon: Percent,
-      suffix: "%",
+      // suffix: "%",
       color: "warning" as const,
-      description: t("metrics.descriptions.conversionRate"),
-    },
-    {
-      title: t("metrics.orders"),
-      value: metricsData.orders,
-      change: 23.1,
-      changeType: "increase" as const,
-      icon: ShoppingCart,
-      color: "info" as const,
-      description: t("metrics.descriptions.orders"),
-    },
-    {
-      title: t("metrics.growth"),
-      value: metricsData.growth,
-      change: 5.4,
-      changeType: "increase" as const,
-      icon: TrendingUp,
-      suffix: "%",
-      color: "success" as const,
-      description: t("metrics.descriptions.growth"),
-    },
-    {
-      title: t("metrics.bounceRate"),
-      value: metricsData.bounceRate,
-      change: -3.2,
-      changeType: "decrease" as const,
-      icon: TrendingDown,
-      suffix: "%",
-      color: "success" as const,
-      description: t("metrics.descriptions.bounceRate"),
-    },
-    {
-      title: t("metrics.pageViews"),
-      value: metricsData.pageViews,
-      change: 18.7,
-      changeType: "increase" as const,
-      icon: Eye,
-      color: "info" as const,
-      description: t("metrics.descriptions.pageViews"),
+      description: t("metrics.descriptions.totalVoters"),
     },
   ];
 
@@ -124,17 +82,13 @@ export function MetricsSection({ data, isLoading = false }: MetricsSectionProps)
       </div>
       <BaseGrid columns={{ sm: 1, md: 2, lg: 4 }}>
         {isLoading
-          ? Array.from({ length: 8 }).map((_, index) => <MetricCardSkeleton key={index} />)
+          ? Array.from({ length: 4 }).map((_, index) => <MetricCardSkeleton key={index} />)
           : metrics.map((metric, index) => (
               <MetricCard
                 key={index}
                 title={metric.title}
                 value={metric.value}
-                change={metric.change}
-                changeType={metric.changeType}
                 icon={metric.icon}
-                prefix={metric.prefix}
-                suffix={metric.suffix}
                 description={metric.description}
                 color={metric.color}
                 fromLastMonthText={t("metrics.fromLastMonth")}

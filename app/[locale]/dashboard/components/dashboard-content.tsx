@@ -4,9 +4,8 @@ import { useDashboard } from "@/hooks/use-dashboard";
 import { DashboardProps } from "../types";
 import { ChartsSection } from "./charts/ChartsSection";
 import { DashboardHeader } from "./dashboard-header";
-import { DataSection } from "./data/data-section";
 import { MetricsSection } from "./metrics/metrics-section";
-import { PerformanceStats } from "./performance/performance-stats";
+import { ComplaintManagementTable } from "./complaints/complaint-management-table";
 import { logger } from "@/logger/logger";
 
 export function DashboardContent({ isLoading: externalLoading = false, data }: DashboardProps) {
@@ -34,17 +33,9 @@ export function DashboardContent({ isLoading: externalLoading = false, data }: D
       {/* Charts Section */}
       <ChartsSection isLoading={combinedLoading} />
 
-      {/* Data Tables Section */}
-      <DataSection
-        data={{
-          products: data?.products,
-          orders: data?.orders,
-        }}
-        isLoading={combinedLoading}
-      />
+      {/* Complaint Management Table */}
+      <ComplaintManagementTable data={data?.complaints} isLoading={combinedLoading} />
 
-      {/* Quick Stats Footer */}
-      <PerformanceStats isLoading={combinedLoading} />
     </div>
   );
 }

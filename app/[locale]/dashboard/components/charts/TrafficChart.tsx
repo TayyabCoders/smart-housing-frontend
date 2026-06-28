@@ -15,19 +15,18 @@ export function TrafficChart({ data, isLoading = false }: TrafficChartProps) {
   const t = useTranslations("dashboard");
 
   const defaultData: ChartDataPoint[] = [
-    { name: t("charts.data.traffic.direct"), value: 400, color: "#3b82f6" },
-    { name: t("charts.data.traffic.organicSearch"), value: 300, color: "#10b981" },
-    { name: t("charts.data.traffic.socialMedia"), value: 200, color: "#f59e0b" },
-    { name: t("charts.data.traffic.email"), value: 100, color: "#ef4444" },
-    { name: t("charts.data.traffic.referral"), value: 150, color: "#8b5cf6" },
+    { name: t("charts.data.complaints.pending"), value: 145, color: "#f59e0b" },
+    { name: t("charts.data.complaints.inProgress"), value: 230, color: "#3b82f6" },
+    { name: t("charts.data.complaints.resolved"), value: 420, color: "#10b981" },
+    { name: t("charts.data.complaints.rejected"), value: 37, color: "#ef4444" },
   ];
 
   const chartData = data || defaultData;
 
   return (
     <ChartCard
-      title={t("charts.trafficSources.title")}
-      description={t("charts.trafficSources.description")}
+      title={t("charts.complaintRequests.title")}
+      description={t("charts.complaintRequests.description")}
       icon={PieChartIcon}
       isLoading={isLoading}
     >
@@ -46,7 +45,7 @@ export function TrafficChart({ data, isLoading = false }: TrafficChartProps) {
               <Cell key={`cell-${index}`} fill={entry.color} />
             ))}
           </Pie>
-          <Tooltip formatter={(value) => [`${value}`, "Visitors"]} />
+          <Tooltip formatter={(value) => [`${value}`, "Complaints"]} />
           <Legend />
         </PieChart>
       </ResponsiveContainer>

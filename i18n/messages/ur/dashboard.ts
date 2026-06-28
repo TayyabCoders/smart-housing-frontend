@@ -55,26 +55,14 @@ const dashboard = {
   // Metrics Cards
   metrics: {
     totalUsers: "کل صارفین",
-    activeUsers: "فعال صارفین",
-    revenue: "آمدنی",
-    conversionRate: "کنورژن ریٹ",
-    orders: "آرڈرز",
-    growth: "ترقی",
-    bounceRate: "باؤنس ریٹ",
-    pageViews: "صفحہ دیکھنے کی تعداد",
-    sessions: "سیشنز",
-    avgSessionDuration: "اوسط سیشن دورانیہ",
-    newUsers: "نئے صارفین",
-    returningUsers: "واپس آنے والے صارفین",
+    totalComplaints: "کل شکایات",
+    pendingComplaints: "زیر التواء شکایات",
+    totalVoters: "کل ووٹرز",
     descriptions: {
       totalUsers: "کل رجسٹرڈ صارفین",
-      activeUsers: "فی الحال فعال صارفین",
-      revenue: "کل پیدا شدہ آمدنی",
-      conversionRate: "کنورژن ریٹ فیصد",
-      orders: "آرڈرز کی تعداد",
-      growth: "ترقی کا فیصد",
-      bounceRate: "باؤنس ریٹ فیصد",
-      pageViews: "کل صفحہ دیکھنے کی تعداد",
+      totalComplaints: "کل درج شدہ شکایات",
+      pendingComplaints: "حل کا انتظار کرنے والی شکایات",
+      totalVoters: "کل رجسٹرڈ ووٹرز",
     },
     fromLastMonth: "پچھلے مہینے سے",
     loading: "میٹرکس لوڈ ہو رہے ہیں...",
@@ -82,25 +70,12 @@ const dashboard = {
 
   // Chart Titles and Descriptions
   charts: {
-    revenueTrend: {
-      title: "آمدنی کا جائزہ",
-      description: "ماہانہ آمدنی اور صارفین کی ترقی",
-      badge: "اپ ڈیٹ شدہ",
-    },
-    userActivity: {
-      title: "صارف کی سرگرمی",
-      description: "روزانہ فعال صارفین اور مشغولیت",
-    },
-    salesComparison: {
-      title: "فروخت کی کارکردگی",
-      description: "سہ ماہی فروخت کا موازنہ",
-    },
-    trafficSources: {
-      title: "ٹریفک ذرائع",
-      description: "ویب سائٹ ٹریفک ذرائع کے لحاظ سے",
+    complaintRequests: {
+      title: "شکایات کی درخواستیں",
+      description: "شکایات کی حیثیت کی تقسیم",
     },
     performanceMetrics: {
-      title: "کارکردگی میٹرکس",
+      title: "کارکردگی کے پیمانے",
       description: "اہم کارکردگی کے اشارے",
     },
     conversionFunnel: {
@@ -123,19 +98,11 @@ const dashboard = {
         nov: "نومبر",
         dec: "دسمبر",
       },
-      products: {
-        productA: "مصنوعہ A",
-        productB: "مصنوعہ B",
-        productC: "مصنوعہ C",
-        productD: "مصنوعہ D",
-        productE: "مصنوعہ E",
-      },
-      traffic: {
-        direct: "براہ راست",
-        organicSearch: "نامیاتی تلاش",
-        socialMedia: "سوشل میڈیا",
-        email: "ای میل",
-        referral: "ریفرل",
+      complaints: {
+        pending: "زیر التواء",
+        inProgress: "جاری ہے",
+        resolved: "حل ہو گیا",
+        rejected: "مسترد",
       },
       labels: {
         revenue: "آمدنی",
@@ -416,6 +383,37 @@ const dashboard = {
         date: "2024-01-13",
       },
     },
+  },
+
+  // Complaint Management
+  complaints: {
+    title: "شکایات کی انتظام",
+    description: "شکایات کی درخواستوں کی انتظام اور ٹریکنگ",
+    table: {
+      username: "صارف کا نام",
+      gender: "جنس",
+      complaintDetail: "شکایت کی تفصیلات",
+      trackingId: "ٹریکنگ آئی ڈی",
+      status: "حیثیت",
+      createdAt: "بنایا گیا",
+      updatedAt: "اپ ڈیٹ کیا گیا",
+      actions: "اقدامات",
+    },
+    gender: {
+      male: "مرد",
+      female: "عورت",
+      other: "دیگر",
+    },
+    status: {
+      pending: "زیر التواء",
+      inProgress: "جاری ہے",
+      resolved: "حل ہو گیا",
+      rejected: "مسترد",
+    },
+    actions: {
+      changeStatus: "حیثیت تبدیل کریں",
+    },
+    noData: "کوئی شکایات نہیں ملی",
   },
 
   // Common text fragments

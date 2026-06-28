@@ -55,26 +55,14 @@ const dashboard = {
   // Metrics Cards
   metrics: {
     totalUsers: "Total Users",
-    activeUsers: "Active Users",
-    revenue: "Revenue",
-    conversionRate: "Conversion Rate",
-    orders: "Orders",
-    growth: "Growth",
-    bounceRate: "Bounce Rate",
-    pageViews: "Page Views",
-    sessions: "Sessions",
-    avgSessionDuration: "Avg Session Duration",
-    newUsers: "New Users",
-    returningUsers: "Returning Users",
+    totalComplaints: "Total Complaints",
+    pendingComplaints: "Pending Complaints",
+    totalVoters: "Total Voters",
     descriptions: {
       totalUsers: "Total registered users",
-      activeUsers: "Currently active users",
-      revenue: "Total revenue generated",
-      conversionRate: "Conversion rate percentage",
-      orders: "Number of orders",
-      growth: "Growth percentage",
-      bounceRate: "Bounce rate percentage",
-      pageViews: "Total page views",
+      totalComplaints: "Total complaints filed",
+      pendingComplaints: "Complaints awaiting resolution",
+      totalVoters: "Total registered voters",
     },
     fromLastMonth: "from last month",
     loading: "Loading metrics...",
@@ -94,22 +82,9 @@ const dashboard = {
 
   // Chart Titles and Descriptions
   charts: {
-    revenueTrend: {
-      title: "Revenue Overview",
-      description: "Monthly revenue and user growth",
-      badge: "Updated",
-    },
-    userActivity: {
-      title: "User Activity",
-      description: "Daily active users and engagement",
-    },
-    salesComparison: {
-      title: "Sales Performance",
-      description: "Quarterly sales comparison",
-    },
-    trafficSources: {
-      title: "Traffic Sources",
-      description: "Website traffic by source",
+    complaintRequests: {
+      title: "Complaint Requests",
+      description: "Complaint status distribution",
     },
     performanceMetrics: {
       title: "Performance Metrics",
@@ -135,19 +110,11 @@ const dashboard = {
         nov: "Nov",
         dec: "Dec",
       },
-      products: {
-        productA: "Product A",
-        productB: "Product B",
-        productC: "Product C",
-        productD: "Product D",
-        productE: "Product E",
-      },
-      traffic: {
-        direct: "Direct",
-        organicSearch: "Organic Search",
-        socialMedia: "Social Media",
-        email: "Email",
-        referral: "Referral",
+      complaints: {
+        pending: "Pending",
+        inProgress: "In Progress",
+        resolved: "Resolved",
+        rejected: "Rejected",
       },
       labels: {
         revenue: "Revenue",
@@ -415,6 +382,37 @@ const dashboard = {
         date: "2024-01-13",
       },
     },
+  },
+
+  // Complaint Management
+  complaints: {
+    title: "Complaint Management",
+    description: "Manage and track complaint requests",
+    table: {
+      username: "Username",
+      gender: "Gender",
+      complaintDetail: "Complaint Detail",
+      trackingId: "Tracking ID",
+      status: "Status",
+      createdAt: "Created At",
+      updatedAt: "Updated At",
+      actions: "Actions",
+    },
+    gender: {
+      male: "Male",
+      female: "Female",
+      other: "Other",
+    },
+    status: {
+      pending: "Pending",
+      inProgress: "In Progress",
+      resolved: "Resolved",
+      rejected: "Rejected",
+    },
+    actions: {
+      changeStatus: "Change Status",
+    },
+    noData: "No complaints found",
   },
 
   // Common text fragments

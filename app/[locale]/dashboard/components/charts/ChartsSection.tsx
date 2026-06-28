@@ -32,17 +32,9 @@ export function ChartsSection({ data, isLoading = false }: ChartsSectionProps) {
       />
 
       <div className="space-y-6">
-        {/* Revenue Trend Chart - Full Width */}
-        <RevenueChart data={data?.revenue} isLoading={isLoading} />
-
         {/* Two Column Charts */}
         <BaseGrid columns={{ sm: 1, md: 2 }}>
-          <SalesChart data={data?.sales} isLoading={isLoading} />
           <TrafficChart data={data?.traffic} isLoading={isLoading} />
-        </BaseGrid>
-
-        <BaseGrid columns={{ sm: 1, md: 2 }}>
-          <ActivityChart data={data?.activity} isLoading={isLoading} />
           <PerformanceChart data={data?.performance} isLoading={isLoading} />
         </BaseGrid>
       </div>
