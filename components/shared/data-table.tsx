@@ -25,7 +25,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { ChevronLeftIcon, ChevronRightIcon, ChevronsLeft, ChevronsRight } from "@/lib/icons/icons";
-import React from "react";
+import React, { useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 
 interface DataTableProps<TData, TValue> {
@@ -35,6 +35,11 @@ interface DataTableProps<TData, TValue> {
   pageCount: number;
   emptyMessage?: string;
 }
+
+// Move model functions outside component to avoid hook issues
+const coreRowModel = getCoreRowModel();
+const filteredRowModel = getFilteredRowModel();
+const paginationRowModel = getPaginationRowModel();
 
 export default function DataTable<TData, TValue>({
   columns,
@@ -59,25 +64,28 @@ export default function DataTable<TData, TValue>({
     pageSize: fallbackPerPage,
   });
 
-  React.useEffect(() => {
-    // Update the URL with the new page number and limit
-    const params = new URLSearchParams(searchParams);
-    params.set("page", (pageIndex + 1).toString());
-    params.set("limit", pageSize.toString());
-    router.push(`?${params.toString()}`);
-  }, [pageIndex, pageSize, searchParams, router]);
+  // React.useEffect(() => {
+  //   const newPage = (pageIndex + 1).toString();
+  //   const newLimit = pageSize.toString();
+  //   // Skip push if URL already has the correct params to prevent infinite loop
+  //   if (searchParams.get("page") === newPage && searchParams.get("limit") === newLimit) return;
+  //   const params = new URLSearchParams(searchParams.toString());
+  //   params.set("page", newPage);
+  //   params.set("limit", newLimit);
+  //   router.push(`?${params.toString()}`);
+  // }, [pageIndex, pageSize, searchParams, router]);
 
   const table = useReactTable({
     data,
     columns,
     pageCount: pageCount ?? -1,
-    getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
+    getCoreRowModel: coreRowModel,
+    getFilteredRowModel: filteredRowModel,
     state: {
       pagination: { pageIndex, pageSize },
     },
     onPaginationChange: setPagination,
-    getPaginationRowModel: getPaginationRowModel(),
+    getPaginationRowModel: paginationRowModel,
     manualPagination: true,
     manualFiltering: true,
   });

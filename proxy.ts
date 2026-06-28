@@ -20,7 +20,6 @@ export default function proxy(request: NextRequest) {
     /^\/(en|ur)\/forgot$/,
     /^\/(en|ur)\/otp$/,
     /^\/(en|ur)\/reset$/,
-    /^\/(en|ur)\/dashboard$/,
   ];
 
   const isPublicRoute = publicRoutes.some((route) => route.test(pathname));

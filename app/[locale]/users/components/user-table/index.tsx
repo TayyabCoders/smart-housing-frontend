@@ -14,7 +14,7 @@ export default function UserTable({ users, pageCount }: TUserTableProps) {
   return (
     <>
       <UserTableActions />
-      {users && <DataTable columns={columns} data={users} pageCount={pageCount} />}
+      <DataTable columns={columns} data={users || []} pageCount={pageCount} />
     </>
   );
 }

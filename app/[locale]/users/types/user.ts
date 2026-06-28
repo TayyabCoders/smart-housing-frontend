@@ -1,23 +1,33 @@
 export type UserModuleUser = {
-  _id: string;
-  name: string;
+  id: string;
+  username: string;
   email: string;
-  avatar?: string;
-  phone?: string;
-  age?: number;
-  gender?: "Male" | "Female" | "Other";
-  address?: string;
-  city?: string;
-  country?: string;
-  zipCode?: string;
-  isActive: boolean;
-  createdAt?: string;
-  updatedAt?: string;
+  role: string;
+  is_active: boolean;
+  phone_number?: string | null;
+  age?: number | null;
+  gender?: string | null;
+  address?: string | null;
+  city?: string | null;
+  country?: string | null;
+  zip_code?: string | null;
+  created_at: string;
+  updated_at: string;
 };
 
 // Request body for creating a new user
-export type CreateUserRequest = Omit<UserModuleUser, "_id" | "createdAt" | "updatedAt"> & {
-  isActive?: boolean;
+export type CreateUserRequest = {
+  username: string;
+  email: string;
+  password: string;
+  phone_number?: string;
+  age?: number;
+  role?: string;
+  gender?: string;
+  address?: string;
+  city?: string;
+  country?: string;
+  zip_code?: string;
 };
 
 // Request body for updating an existing user
@@ -37,12 +47,10 @@ export type UserListParams = {
 
 // Response shape for paginated user list
 export type UserListResponse = {
-  success: boolean;
-  count: number;
   total: number;
-  page: number;
-  pages: number;
-  data: UserModuleUser[];
+  rows: UserModuleUser[];
+  offset: number;
+  limit: number;
 };
 
 // Generic API response for User module

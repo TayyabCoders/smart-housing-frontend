@@ -9,17 +9,21 @@ const translate =
 // ✅ CREATE USER SCHEMA
 export const createUserSchema = (t?: (key: string) => string) =>
   z.object({
-    name: z
+    username: z
       .string()
-      .min(1, { message: translate(t)("nameRequired", "Name is required") })
+      .min(1, { message: translate(t)("usernameRequired", "Username is required") })
       .min(2, {
-        message: translate(t)("nameMinLength", "Name must be at least 2 characters"),
+        message: translate(t)("usernameMinLength", "Username must be at least 2 characters"),
       }),
     email: z
       .string()
       .min(1, { message: translate(t)("emailRequired", "Email is required") })
       .email({ message: translate(t)("emailInvalid", "Please enter a valid email") }),
-    phone: z
+    password: z
+      .string()
+      .min(1, { message: translate(t)("passwordRequired", "Password is required") })
+      .min(6, { message: translate(t)("passwordMinLength", "Password must be at least 6 characters") }),
+    phone_number: z
       .string()
       .optional()
       .refine(
@@ -27,20 +31,19 @@ export const createUserSchema = (t?: (key: string) => string) =>
         "Please enter a valid phone number"
       ),
     age: z
+      .coerce
       .number({
         invalid_type_error: "Age must be a number",
       })
       .min(1, { message: translate(t)("ageMin", "Age must be at least 1") })
       .max(150, { message: translate(t)("ageMax", "Age must be less than 150") })
       .optional(),
-    gender: z.enum(["Male", "Female", "Other"]).optional(),
+    role: z.string().optional(),
+    gender: z.enum(["male", "female", "other"]).optional(),
     address: z.string().optional(),
     city: z.string().optional(),
     country: z.string().optional(),
-    zipCode: z.string().optional(),
-    isActive: z.boolean().default(true),
-    createdAt: z.string().optional(), // ISO timestamp
-    updatedAt: z.string().optional(), // ISO timestamp
+    zip_code: z.string().optional(),
   });
 
 // ✅ UPDATE USER SCHEMA (partial)

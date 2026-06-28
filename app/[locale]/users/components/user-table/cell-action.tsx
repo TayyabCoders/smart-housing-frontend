@@ -36,13 +36,13 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
 
   // ✅ Confirm delete via Redux thunk
   const onConfirm = async () => {
-    if (!data?._id) {
+    if (!data?.id) {
       toast.error("Invalid user data");
       return;
     }
 
     try {
-      await dispatch(deleteUser(data._id)).unwrap();
+      await dispatch(deleteUser(data.id)).unwrap();
       toast.success("User deleted successfully");
       setOpen(false);
     } catch (error: any) {
@@ -52,7 +52,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
 
   // ✅ Handlers
   const handleViewDetails = () => {
-    if (!data?._id) {
+    if (!data?.id) {
       toast.error("Invalid user data");
       return;
     }
@@ -60,7 +60,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   };
 
   const handleEdit = () => {
-    if (!data?._id) {
+    if (!data?.id) {
       toast.error("Invalid user data");
       return;
     }
@@ -68,7 +68,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   };
 
   const handleDelete = () => {
-    if (!data?._id) {
+    if (!data?.id) {
       toast.error("Invalid user data");
       return;
     }

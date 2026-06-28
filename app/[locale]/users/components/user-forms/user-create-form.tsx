@@ -65,12 +65,12 @@ const UserCreateForm = ({ modalClose, initialData, isUpdate }: UserFormProps) =>
       grid: { columns: { sm: 1, md: 2, lg: 2 }, gap: 4 },
       fields: [
         {
-          id: "name",
-          name: "name",
+          id: "username",
+          name: "username",
           type: "text",
-          label: "Full Name",
+          label: "Username",
           required: true,
-          placeholder: "Enter full name",
+          placeholder: "Enter username",
           className: "bg-muted/50 focus:bg-background transition-colors",
         },
         {
@@ -83,8 +83,29 @@ const UserCreateForm = ({ modalClose, initialData, isUpdate }: UserFormProps) =>
           className: "bg-muted/50 focus:bg-background transition-colors",
         },
         {
-          id: "phone",
-          name: "phone",
+          id: "password",
+          name: "password",
+          type: "password",
+          label: "Password",
+          required: true,
+          placeholder: "Enter password",
+          className: "bg-muted/50 focus:bg-background transition-colors",
+        },
+        {
+          id: "role",
+          name: "role",
+          type: "select",
+          label: "Role",
+          placeholder: "Select role",
+          options: [
+            { label: "Admin", value: "admin" },
+            { label: "User", value: "user" },
+          ],
+          className: "bg-muted/50 focus:bg-background transition-colors",
+        },
+        {
+          id: "phone_number",
+          name: "phone_number",
           type: "text",
           label: "Phone Number",
           placeholder: "+1234567890",
@@ -105,9 +126,9 @@ const UserCreateForm = ({ modalClose, initialData, isUpdate }: UserFormProps) =>
           label: "Gender",
           placeholder: "Select gender",
           options: [
-            { label: "Male", value: "Male" },
-            { label: "Female", value: "Female" },
-            { label: "Other", value: "Other" },
+            { label: "Male", value: "male" },
+            { label: "Female", value: "female" },
+            { label: "Other", value: "other" },
           ],
           className: "bg-muted/50 focus:bg-background transition-colors",
         },
@@ -137,18 +158,11 @@ const UserCreateForm = ({ modalClose, initialData, isUpdate }: UserFormProps) =>
           className: "bg-muted/50 focus:bg-background transition-colors",
         },
         {
-          id: "zipCode",
-          name: "zipCode",
+          id: "zip_code",
+          name: "zip_code",
           type: "text",
           label: "Zip Code",
           placeholder: "Enter zip code",
-          className: "bg-muted/50 focus:bg-background transition-colors",
-        },
-        {
-          id: "isActive",
-          name: "isActive",
-          type: "toggle",
-          label: "Active Status",
           className: "bg-muted/50 focus:bg-background transition-colors",
         },
       ],
@@ -159,20 +173,18 @@ const UserCreateForm = ({ modalClose, initialData, isUpdate }: UserFormProps) =>
   const defaultValues =
     isUpdate && initialData
       ? {
-          name: initialData.name || "",
+          username: initialData.username || "",
           email: initialData.email || "",
-          phone: initialData.phone || "",
+          phone_number: initialData.phone_number || "",
           age: initialData.age || undefined,
+          role: initialData.role || "",
           gender: initialData.gender || "",
           address: initialData.address || "",
           city: initialData.city || "",
           country: initialData.country || "",
-          zipCode: initialData.zipCode || "",
-          isActive: initialData.isActive ?? true,
+          zip_code: initialData.zip_code || "",
         }
-      : {
-          isActive: true,
-        };
+      : {};
 
   const isPending = loading;
 

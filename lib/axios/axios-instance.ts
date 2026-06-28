@@ -2,7 +2,7 @@ import axios from "axios";
 import { getToken } from "@/lib//cookie/cookie";
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  process.env.NEXT_PUBLIC_BASE_URL ||
   "https://next-boiler-backend-jffr-611rh8w6g.vercel.app/api/";
 
 export const axiosInstance = axios.create({

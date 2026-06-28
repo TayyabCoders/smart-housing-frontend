@@ -1,6 +1,6 @@
 "use client";
-import { useEffect } from "react";
-import { useLayout } from "@/contexts/layout-context";
+import { useEffect, useRef, useMemo } from "react";
+import { useLayoutActions } from "@/contexts/layout-context";
 import { DynamicLayout } from "@/components/layout/dynamic-layout";
 import PageHead from "@/components/shared/page-head";
 import UserTable from "./components/user-table";
@@ -12,13 +12,18 @@ import { UserListParams } from "@/app/[locale]/users/types/user";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 
 export default function UserPage() {
-  const { setLayoutType } = useLayout();
+  const { setLayoutType } = useLayoutActions();
   const dispatch = useAppDispatch();
   const searchParams = useSearchParams();
+  const layoutSetRef = useRef(false);
+  const prevFiltersRef = useRef<string>("");
 
   // Set dashboard layout
   useEffect(() => {
-    setLayoutType("dashboard");
+    if (!layoutSetRef.current) {
+      setLayoutType("dashboard");
+      layoutSetRef.current = true;
+    }
   }, [setLayoutType]);
 
   // Get state from Redux store
@@ -39,22 +44,31 @@ export default function UserPage() {
   const sort = searchParams.get("sort") || "-createdAt";
 
   // Build filters object
-  const currentFilters: UserListParams = {
-    search,
-    city,
-    country,
-    gender,
-    isActive,
-    page,
-    limit,
-    sort,
-  };
+  const currentFilters: UserListParams = useMemo(
+    () => ({
+      search,
+      city,
+      country,
+      gender,
+      isActive,
+      page,
+      limit,
+      sort,
+    }),
+    [search, city, country, gender, isActive, page, limit, sort]
+  );
 
   // Fetch users when filters change
   useEffect(() => {
+    const filtersString = JSON.stringify(currentFilters);
+    
+    // Only fetch if filters have actually changed
+    if (prevFiltersRef.current === filtersString) return;
+    
+    prevFiltersRef.current = filtersString;
     dispatch(setFilters(currentFilters));
     dispatch(fetchUsers(currentFilters));
-  }, [dispatch, search, city, country, gender, isActive, page, limit, sort]);
+  }, [dispatch, currentFilters]);
 
   const isLoading = loading;
 

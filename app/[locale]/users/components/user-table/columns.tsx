@@ -6,9 +6,9 @@ import { UserModuleUser } from "@/app/[locale]/users/types/user";
 
 export const columns: ColumnDef<UserModuleUser>[] = [
   {
-    accessorKey: "name",
+    accessorKey: "username",
     header: "Name",
-    cell: ({ row }) => row.original.name || "N/A",
+    cell: ({ row }) => row.original.username || "N/A",
   },
   {
     accessorKey: "email",
@@ -16,14 +16,14 @@ export const columns: ColumnDef<UserModuleUser>[] = [
     cell: ({ row }) => row.original.email || "N/A",
   },
   {
-    accessorKey: "phone",
+    accessorKey: "phone_number",
     header: "Phone",
-    cell: ({ row }) => row.original.phone || "N/A",
+    cell: ({ row }) => row.original.phone_number || "N/A",
   },
   {
     accessorKey: "age",
     header: "Age",
-    cell: ({ row }) => (row.original.age !== undefined ? row.original.age : "N/A"),
+    cell: ({ row }) => (row.original.age !== undefined && row.original.age !== null ? row.original.age : "N/A"),
   },
   {
     accessorKey: "gender",
@@ -31,16 +31,26 @@ export const columns: ColumnDef<UserModuleUser>[] = [
     cell: ({ row }) => row.original.gender || "N/A",
   },
   {
-    accessorKey: "createdAt",
-    header: "Created At",
-    cell: ({ row }) =>
-      row.original.createdAt ? new Date(row.original.createdAt).toLocaleString() : "N/A",
+    accessorKey: "city",
+    header: "City",
+    cell: ({ row }) => row.original.city || "N/A",
   },
   {
-    accessorKey: "updatedAt",
+    accessorKey: "country",
+    header: "Country",
+    cell: ({ row }) => row.original.country || "N/A",
+  },
+  {
+    accessorKey: "created_at",
+    header: "Created At",
+    cell: ({ row }) =>
+      row.original.created_at ? new Date(row.original.created_at).toLocaleString() : "N/A",
+  },
+  {
+    accessorKey: "updated_at",
     header: "Updated At",
     cell: ({ row }) =>
-      row.original.updatedAt ? new Date(row.original.updatedAt).toLocaleString() : "N/A",
+      row.original.updated_at ? new Date(row.original.updated_at).toLocaleString() : "N/A",
   },
   {
     id: "actions",

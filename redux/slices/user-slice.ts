@@ -118,12 +118,12 @@ const userSlice = createSlice({
       })
       .addCase(fetchUsers.fulfilled, (state, action) => {
         state.loading = false;
-        state.users = action.payload.data;
+        state.users = action.payload.rows;
         state.pagination = {
-          page: action.payload.page,
-          pages: action.payload.pages,
+          page: Math.floor(action.payload.offset / action.payload.limit) + 1,
+          pages: Math.ceil(action.payload.total / action.payload.limit),
           total: action.payload.total,
-          count: action.payload.count,
+          count: action.payload.rows.length,
         };
       })
       .addCase(fetchUsers.rejected, (state, action) => {
@@ -167,9 +167,9 @@ const userSlice = createSlice({
       .addCase(updateUser.fulfilled, (state, action) => {
         state.loading = false;
         const updatedUser = action.payload;
-        const index = state.users.findIndex((user) => user._id === updatedUser._id);
+        const index = state.users.findIndex((user) => user.id === updatedUser.id);
         if (index !== -1) state.users[index] = updatedUser;
-        if (state.currentUser?._id === updatedUser._id) {
+        if (state.currentUser?.id === updatedUser.id) {
           state.currentUser = updatedUser;
         }
       })
@@ -186,8 +186,8 @@ const userSlice = createSlice({
       .addCase(deleteUser.fulfilled, (state, action) => {
         state.loading = false;
         const id = action.payload;
-        state.users = state.users.filter((user) => user._id !== id);
-        if (state.currentUser?._id === id) {
+        state.users = state.users.filter((user) => user.id !== id);
+        if (state.currentUser?.id === id) {
           state.currentUser = null;
         }
       })

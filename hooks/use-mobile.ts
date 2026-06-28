@@ -134,17 +134,29 @@ export function useResponsive(): ResponsiveState {
       const deviceType = getDeviceType(width);
       const isTouchDevice = checkIsTouchDevice();
 
-      setState({
-        width,
-        height,
-        deviceType,
-        isMobile: deviceType === "mobile",
-        isTablet: deviceType === "tablet",
-        isDesktop: deviceType === "desktop",
-        isLargeDesktop: deviceType === "large-desktop",
-        orientation: height > width ? "portrait" : "landscape",
-        isTouchDevice,
-        breakpoint: getCurrentBreakpoint(width),
+      setState((prev) => {
+        // Skip update if nothing changed
+        if (
+          prev.width === width &&
+          prev.height === height &&
+          prev.deviceType === deviceType &&
+          prev.isTouchDevice === isTouchDevice
+        ) {
+          return prev;
+        }
+
+        return {
+          width,
+          height,
+          deviceType,
+          isMobile: deviceType === "mobile",
+          isTablet: deviceType === "tablet",
+          isDesktop: deviceType === "desktop",
+          isLargeDesktop: deviceType === "large-desktop",
+          orientation: height > width ? "portrait" : "landscape",
+          isTouchDevice,
+          breakpoint: getCurrentBreakpoint(width),
+        };
       });
     };
 
@@ -156,9 +168,6 @@ export function useResponsive(): ResponsiveState {
     // Also listen to resize and orientation change
     window.addEventListener("resize", updateState);
     window.addEventListener("orientationchange", updateState);
-
-    // Initial update
-    updateState();
 
     // Cleanup
     return () => {

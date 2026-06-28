@@ -31,7 +31,7 @@ export default function LoginPage() {
       await dispatch(googleLogin({ idToken: credentialResponse.credential })).unwrap();
 
       toast.success(t("success") || "Logged in with Google");
-      router.push(`/${locale}/`);
+      router.push(`/${locale}/dashboard`);
     } catch (err: any) {
       const msg = typeof err === "string" ? err : err?.message || "Google login failed";
       toast.error("Google Login Failed", { description: msg });
@@ -53,7 +53,7 @@ export default function LoginPage() {
       await dispatch(loginUser({ email: values.email, password: values.password })).unwrap();
 
       toast.success(t("success") || "Logged in");
-      router.push(`/${locale}/`);
+      router.push(`/${locale}/dashboard`);
     } catch (err: any) {
       const msg = typeof err === "string" ? err : err?.message || "Login failed";
       toast.error(t("error") || "Login failed", { description: msg });

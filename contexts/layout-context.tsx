@@ -27,6 +27,12 @@ const defaultLayoutState: LayoutState = {
 
 const LayoutContext = createContext<LayoutContextValue | undefined>(undefined);
 
+// Separate context for stable actions (doesn't change with state)
+const LayoutActionsContext = createContext<Pick<LayoutContextValue, "setLayoutType" | "toggleSidebar" | "toggleMobileMenu" | "closeMobileMenu"> | undefined>(undefined);
+
+// Separate context for dynamic state (changes frequently)
+const LayoutStateContext = createContext<Pick<LayoutContextValue, "config" | "state" | "isMobile" | "responsive"> | undefined>(undefined);
+
 export function LayoutProvider({ children }: PropsWithChildren) {
   // Initialize layout type from localStorage or default to 'website'
   const [layoutType, setLayoutTypeState] = useState<LayoutType>(() => {
@@ -74,6 +80,29 @@ export function LayoutProvider({ children }: PropsWithChildren) {
     setState((prev) => ({ ...prev, mobileMenuOpen: false }));
   }, []);
 
+  // Stable actions context (doesn't change with state)
+  const actionsValue = useMemo(
+    () => ({
+      setLayoutType,
+      toggleSidebar,
+      toggleMobileMenu,
+      closeMobileMenu,
+    }),
+    [setLayoutType, toggleSidebar, toggleMobileMenu, closeMobileMenu]
+  );
+
+  // Dynamic state context (changes with state)
+  const stateValue = useMemo(
+    () => ({
+      config,
+      state,
+      isMobile,
+      responsive,
+    }),
+    [config, state, isMobile, responsive]
+  );
+
+  // Full context value (changes with state)
   const value = useMemo<LayoutContextValue>(
     () => ({
       config,
@@ -85,25 +114,30 @@ export function LayoutProvider({ children }: PropsWithChildren) {
       toggleMobileMenu,
       closeMobileMenu,
     }),
-    [
-      config,
-      state,
-      isMobile,
-      responsive,
-      setLayoutType,
-      toggleSidebar,
-      toggleMobileMenu,
-      closeMobileMenu,
-    ]
+    [config, state, isMobile, responsive, setLayoutType, toggleSidebar, toggleMobileMenu, closeMobileMenu]
   );
 
-  return <LayoutContext.Provider value={value}>{children}</LayoutContext.Provider>;
+  return (
+    <LayoutActionsContext.Provider value={actionsValue}>
+      <LayoutStateContext.Provider value={stateValue}>
+        <LayoutContext.Provider value={value}>{children}</LayoutContext.Provider>
+      </LayoutStateContext.Provider>
+    </LayoutActionsContext.Provider>
+  );
 }
 
 export function useLayout() {
   const ctx = useContext(LayoutContext);
   if (!ctx) {
     throw new Error("useLayout must be used within LayoutProvider");
+  }
+  return ctx;
+}
+
+export function useLayoutActions() {
+  const ctx = useContext(LayoutActionsContext);
+  if (!ctx) {
+    throw new Error("useLayoutActions must be used within LayoutProvider");
   }
   return ctx;
 }
