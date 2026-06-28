@@ -1,18 +1,12 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import { ClipboardList, ShieldAlert, CheckCircle2 } from 'lucide-react';
-import { Complaint } from '../types';
+import { useAppSelector } from '@/redux/store';
 
-interface ComplaintsHeaderProps {
-  complaints: Complaint[];
-}
-
-export default function ComplaintsHeader({ complaints }: ComplaintsHeaderProps) {
+export default function ComplaintsHeader() {
   const t = useTranslations("complaints.header");
 
-  const total = complaints.length;
-  const resolved = complaints.filter(c => c.status === 'Resolved').length;
-  const pending = total - resolved;
+  const { total, pending, resolved } = useAppSelector((state) => state.complaints);
 
   return (
     <div className="flex-none bg-background rounded-t-xl overflow-hidden border-b">

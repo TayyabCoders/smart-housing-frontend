@@ -19,12 +19,12 @@ export interface Order {
 
 export interface Complaint {
   id: string;
-  username: string;
-  gender: "male" | "female" | "other";
-  complaintDetail: string;
-  trackingId: string;
+  fullname: string;
+  gender: string;
+  complaint_detail: string;
+  tracking_id: string;
   status: "pending" | "in_progress" | "resolved" | "rejected";
-  date: string;
+  date?: string;
   created_at: string;
   updated_at: string;
 }

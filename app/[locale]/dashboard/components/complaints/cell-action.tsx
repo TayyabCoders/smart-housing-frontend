@@ -11,18 +11,29 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Complaint } from "../../types";
 import { useTranslations } from "next-intl";
-import { logger } from "@/logger/logger";
+import { useAppDispatch } from "@/redux/store";
+import { updateComplaintStatus } from "@/redux/slices/complaint-slice";
 
 interface CellActionProps {
   data: Complaint;
+  onStatusUpdate?: () => void;
 }
 
-export const CellAction: React.FC<CellActionProps> = ({ data }) => {
+export const CellAction: React.FC<CellActionProps> = ({ data, onStatusUpdate }) => {
   const t = useTranslations("dashboard");
+  const dispatch = useAppDispatch();
 
-  const handleStatusChange = (newStatus: string) => {
-    logger.info(`Changing status for complaint ${data.id} to ${newStatus}`);
-    // TODO: Implement API call to update status
+  const handleStatusChange = async (newStatus: "pending" | "in_progress" | "resolved" | "rejected") => {
+    try {
+      await dispatch(updateComplaintStatus({ id: data.id, status: newStatus }));
+      
+      // Trigger refresh of the complaint list
+      if (onStatusUpdate) {
+        onStatusUpdate();
+      }
+    } catch (error) {
+      console.error(`Failed to update status for complaint ${data.id}`, { error });
+    }
   };
 
   return (

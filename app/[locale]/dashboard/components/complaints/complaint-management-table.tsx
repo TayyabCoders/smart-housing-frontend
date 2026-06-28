@@ -9,16 +9,17 @@ import { CellAction } from "./cell-action";
 interface ComplaintManagementTableProps {
   data?: Complaint[];
   isLoading?: boolean;
+  onRefresh?: () => void;
 }
 
-export function ComplaintManagementTable({ data = [], isLoading = false }: ComplaintManagementTableProps) {
+export function ComplaintManagementTable({ data = [], isLoading = false, onRefresh }: ComplaintManagementTableProps) {
   const t = useTranslations("dashboard");
 
   const columns: ColumnDef<Complaint>[] = [
     {
-      accessorKey: "username",
+      accessorKey: "fullname",
       header: t("complaints.table.username"),
-      cell: ({ row }) => <div className="font-medium">{row.getValue("username")}</div>,
+      cell: ({ row }) => <div className="font-medium">{row.getValue("fullname")}</div>,
     },
     {
       accessorKey: "gender",
@@ -34,24 +35,34 @@ export function ComplaintManagementTable({ data = [], isLoading = false }: Compl
       },
     },
     {
-      accessorKey: "complaintDetail",
+      accessorKey: "complaint_detail",
       header: t("complaints.table.complaintDetail"),
       cell: ({ row }) => (
-        <div className="max-w-[300px] truncate" title={row.getValue("complaintDetail")}>
-          {row.getValue("complaintDetail")}
+        <div className="max-w-[300px] truncate" title={row.getValue("complaint_detail")}>
+          {row.getValue("complaint_detail")}
         </div>
       ),
     },
     {
-      accessorKey: "trackingId",
+      accessorKey: "tracking_id",
       header: t("complaints.table.trackingId"),
-      cell: ({ row }) => <div className="font-mono text-sm">{row.getValue("trackingId")}</div>,
+      cell: ({ row }) => <div className="font-mono text-sm">{row.getValue("tracking_id")}</div>,
     },
     {
       accessorKey: "status",
       header: t("complaints.table.status"),
       cell: ({ row }) => {
         const status = row.getValue("status") as string;
+        // Normalize status to snake_case for consistent styling
+        // Handle: snake_case (in_progress), PascalCase (In_Progress), and camelCase (InProgress)
+        const normalizedStatus = status
+          .toLowerCase()
+          .replace(/_/g, '_')
+          .replace(/inprogress/g, 'in_progress')
+          .replace(/resolved/g, 'resolved')
+          .replace(/pending/g, 'pending')
+          .replace(/rejected/g, 'rejected');
+        
         const statusStyles: Record<string, string> = {
           pending: "bg-yellow-100 text-yellow-800",
           in_progress: "bg-blue-100 text-blue-800",
@@ -65,8 +76,8 @@ export function ComplaintManagementTable({ data = [], isLoading = false }: Compl
           rejected: t("complaints.status.rejected"),
         };
         return (
-          <div className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${statusStyles[status] || "bg-gray-100 text-gray-800"}`}>
-            {statusLabels[status] || status}
+          <div className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${statusStyles[normalizedStatus] || "bg-gray-100 text-gray-800"}`}>
+            {statusLabels[normalizedStatus] || status}
           </div>
         );
       },
@@ -86,7 +97,7 @@ export function ComplaintManagementTable({ data = [], isLoading = false }: Compl
     {
       id: "actions",
       header: t("complaints.table.actions"),
-      cell: ({ row }) => <CellAction data={row.original} />,
+      cell: ({ row }) => <CellAction data={row.original} onStatusUpdate={onRefresh} />,
     },
   ];
 
@@ -94,10 +105,10 @@ export function ComplaintManagementTable({ data = [], isLoading = false }: Compl
   const mockData: Complaint[] = [
     {
       id: "1",
-      username: "John Doe",
+      fullname: "John Doe",
       gender: "male",
-      complaintDetail: "Water supply issue in Block A",
-      trackingId: "CMP-2024-001",
+      complaint_detail: "Water supply issue in Block A",
+      tracking_id: "CMP-2024-001",
       status: "pending",
       date: "2024-01-15",
       created_at: "2024-01-15T10:30:00",
@@ -105,10 +116,10 @@ export function ComplaintManagementTable({ data = [], isLoading = false }: Compl
     },
     {
       id: "2",
-      username: "Jane Smith",
+      fullname: "Jane Smith",
       gender: "female",
-      complaintDetail: "Street light not working",
-      trackingId: "CMP-2024-002",
+      complaint_detail: "Street light not working",
+      tracking_id: "CMP-2024-002",
       status: "in_progress",
       date: "2024-01-14",
       created_at: "2024-01-14T14:20:00",
@@ -116,10 +127,10 @@ export function ComplaintManagementTable({ data = [], isLoading = false }: Compl
     },
     {
       id: "3",
-      username: "Bob Johnson",
+      fullname: "Bob Johnson",
       gender: "male",
-      complaintDetail: "Garbage collection delay",
-      trackingId: "CMP-2024-003",
+      complaint_detail: "Garbage collection delay",
+      tracking_id: "CMP-2024-003",
       status: "resolved",
       date: "2024-01-13",
       created_at: "2024-01-13T08:45:00",
@@ -127,10 +138,10 @@ export function ComplaintManagementTable({ data = [], isLoading = false }: Compl
     },
     {
       id: "4",
-      username: "Alice Brown",
+      fullname: "Alice Brown",
       gender: "female",
-      complaintDetail: "Road damage near main gate",
-      trackingId: "CMP-2024-004",
+      complaint_detail: "Road damage near main gate",
+      tracking_id: "CMP-2024-004",
       status: "pending",
       date: "2024-01-12",
       created_at: "2024-01-12T11:00:00",
@@ -138,10 +149,10 @@ export function ComplaintManagementTable({ data = [], isLoading = false }: Compl
     },
     {
       id: "5",
-      username: "Charlie Wilson",
+      fullname: "Charlie Wilson",
       gender: "male",
-      complaintDetail: "Noise complaint from neighbor",
-      trackingId: "CMP-2024-005",
+      complaint_detail: "Noise complaint from neighbor",
+      tracking_id: "CMP-2024-005",
       status: "rejected",
       date: "2024-01-11",
       created_at: "2024-01-11T15:30:00",

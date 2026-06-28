@@ -34,7 +34,8 @@ const complaints = {
       submitted: "Submitted",
       pending: "Pending",
       inProgress: "In Progress",
-      resolved: "Resolved"
+      resolved: "Resolved",
+      rejected: "Rejected"
     },
     details: {
       name: "Name",

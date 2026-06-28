@@ -3,28 +3,27 @@ import { useTranslations } from 'next-intl';
 import { CheckCircle2, Copy, Download, Plus, Send } from 'lucide-react';
 import jsPDF from 'jspdf';
 import { cn } from '@/lib/tailwindUtils/utils';
-import { Complaint } from '../types';
+import { Complaint } from '@/app/[locale]/dashboard/types';
+import { useAppDispatch } from '@/redux/store';
+import { createComplaint } from '@/redux/slices/complaint-slice';
 
 interface SubmitTabProps {
-  onAddComplaint: (c: Complaint) => void;
   lastSubmitted: Complaint | null;
   onNewComplaint: () => void;
 }
 
-export default function SubmitTab({ onAddComplaint, lastSubmitted, onNewComplaint }: SubmitTabProps) {
+export default function SubmitTab({ lastSubmitted, onNewComplaint }: SubmitTabProps) {
   const t = useTranslations("complaints.submit");
   const tSuccess = useTranslations("complaints.success");
+  const dispatch = useAppDispatch();
   
-  const [name, setName] = useState('');
+  const [fullname, setFullname] = useState('');
   const [gender, setGender] = useState<'male' | 'female' | ''>('');
-  const [comment, setComment] = useState('');
-  const [errors, setErrors] = useState({ name: false, gender: false, comment: false });
+  const [complaint_detail, setComplaintDetail] = useState('');
+  const [errors, setErrors] = useState({ fullname: false, gender: false, complaint_detail: false });
   const [copied, setCopied] = useState(false);
-
-  const generateId = () => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    return 'CMP-' + Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-  };
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [localLastSubmitted, setLocalLastSubmitted] = useState<Complaint | null>(lastSubmitted);
 
   const getNow = () => {
     return new Date().toLocaleString('en-PK', {
@@ -33,32 +32,44 @@ export default function SubmitTab({ onAddComplaint, lastSubmitted, onNewComplain
     });
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const newErrors = {
-      name: !name.trim(),
+      fullname: !fullname.trim(),
       gender: !gender,
-      comment: !comment.trim(),
+      complaint_detail: !complaint_detail.trim(),
     };
     setErrors(newErrors);
 
-    if (!newErrors.name && !newErrors.gender && !newErrors.comment) {
-      const now = getNow();
-      const newComplaint: Complaint = {
-        id: generateId(),
-        name: name.trim(),
-        gender: gender as 'male' | 'female',
-        comment: comment.trim(),
-        status: 'Submitted',
-        submittedAt: now,
-        updatedAt: now,
-      };
-      onAddComplaint(newComplaint);
+    if (!newErrors.fullname && !newErrors.gender && !newErrors.complaint_detail) {
+      try {
+        setIsSubmitting(true);
+        const result = await dispatch(createComplaint({
+          fullname: fullname.trim(),
+          gender: gender as string,
+          complaint_detail: complaint_detail.trim(),
+        }));
+        
+        if (createComplaint.fulfilled.match(result)) {
+          // Set last submitted complaint to show success screen
+          setLocalLastSubmitted(result.payload);
+          
+          // Reset form
+          setFullname('');
+          setGender('');
+          setComplaintDetail('');
+          setErrors({ fullname: false, gender: false, complaint_detail: false });
+        }
+      } catch (error) {
+        console.error('Failed to submit complaint:', error);
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
   const copyId = () => {
-    if (!lastSubmitted) return;
-    navigator.clipboard.writeText(lastSubmitted.id).then(() => {
+    if (!localLastSubmitted) return;
+    navigator.clipboard.writeText(localLastSubmitted.tracking_id).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }).catch(err => {
@@ -67,8 +78,8 @@ export default function SubmitTab({ onAddComplaint, lastSubmitted, onNewComplain
   };
 
   const downloadPdf = () => {
-    if (!lastSubmitted) return;
-    const rec = lastSubmitted;
+    if (!localLastSubmitted) return;
+    const rec = localLastSubmitted;
 
     const doc = new jsPDF({ unit: 'pt', format: 'a4' });
     const PW = doc.internal.pageSize.getWidth();
@@ -127,7 +138,7 @@ export default function SubmitTab({ onAddComplaint, lastSubmitted, onNewComplain
     doc.setFont('courier', 'bold');
     doc.setFontSize(28);
     doc.setTextColor(67, 56, 202);
-    doc.text(rec.id, PW / 2, 162, { align: 'center' });
+    doc.text(rec.tracking_id, PW / 2, 162, { align: 'center' });
 
     // Details section
     let y = 202;
@@ -164,17 +175,17 @@ export default function SubmitTab({ onAddComplaint, lastSubmitted, onNewComplain
 
     wSecTitle('COMPLAINANT INFORMATION', y);
     y += 16;
-    y += wField('Full Name', rec.name, y);
+    y += wField('Full Name', rec.fullname, y);
     y += 4;
     y += wField('Gender', rec.gender.charAt(0).toUpperCase() + rec.gender.slice(1), y);
     y += 4;
-    y += wField('Submitted On', rec.submittedAt, y);
+    y += wField('Submitted On', rec.created_at, y);
     y += 20;
 
     wSecTitle('COMPLAINT DESCRIPTION', y);
     y += 16;
 
-    const cLines = doc.splitTextToSize(rec.comment, PW - 100);
+    const cLines = doc.splitTextToSize(rec.complaint_detail, PW - 100);
     const cBoxH = Math.max(46, cLines.length * 13 + 18);
     doc.setFillColor(255, 255, 255);
     doc.setDrawColor(243, 244, 246);
@@ -223,20 +234,21 @@ export default function SubmitTab({ onAddComplaint, lastSubmitted, onNewComplain
     doc.setFontSize(7.5);
     doc.setTextColor(156, 163, 175);
     doc.text('System-generated receipt — no signature required.', PW / 2, PH - 24, { align: 'center' });
-    doc.text(`Generated: ${rec.submittedAt}`, PW / 2, PH - 12, { align: 'center' });
+    doc.text(`Generated: ${rec.created_at}`, PW / 2, PH - 12, { align: 'center' });
 
-    doc.save(`Complaint_${rec.id}.pdf`);
+    doc.save(`Complaint_${rec.tracking_id}.pdf`);
   };
 
   const resetForm = () => {
-    setName('');
+    setFullname('');
     setGender('');
-    setComment('');
-    setErrors({ name: false, gender: false, comment: false });
+    setComplaintDetail('');
+    setErrors({ fullname: false, gender: false, complaint_detail: false });
+    setLocalLastSubmitted(null);
     onNewComplaint();
   };
 
-  if (lastSubmitted) {
+  if (localLastSubmitted) {
     return (
       <div className="max-w-md mx-auto mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
         <div className="bg-background border rounded-2xl p-8 text-center shadow-sm">
@@ -248,7 +260,7 @@ export default function SubmitTab({ onAddComplaint, lastSubmitted, onNewComplain
           
           <div className="bg-muted/50 border-2 border-dashed border-border rounded-xl p-4 flex items-center gap-3 mb-4">
             <code className="flex-1 font-mono text-lg font-bold text-primary tracking-wider text-left">
-              {lastSubmitted.id}
+              {localLastSubmitted.tracking_id}
             </code>
             <button 
               onClick={copyId}
@@ -294,18 +306,18 @@ export default function SubmitTab({ onAddComplaint, lastSubmitted, onNewComplain
           </label>
           <input 
             type="text" 
-            value={name}
+            value={fullname}
             onChange={(e) => {
-              setName(e.target.value);
-              if (errors.name) setErrors(prev => ({ ...prev, name: false }));
+              setFullname(e.target.value);
+              if (errors.fullname) setErrors(prev => ({ ...prev, fullname: false }));
             }}
             placeholder={t("namePlaceholder")}
             className={cn(
               "w-full bg-muted/50 border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all",
-              errors.name ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : "border-border focus:border-primary"
+              errors.fullname ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : "border-border focus:border-primary"
             )}
           />
-          {errors.name && <p className="text-xs text-red-500 mt-1 animate-in slide-in-from-top-1">{t("nameRequired")}</p>}
+          {errors.fullname && <p className="text-xs text-red-500 mt-1 animate-in slide-in-from-top-1">{t("nameRequired")}</p>}
         </div>
 
         {/* Gender */}
@@ -350,28 +362,29 @@ export default function SubmitTab({ onAddComplaint, lastSubmitted, onNewComplain
             {t("complaintDetail")}
           </label>
           <textarea 
-            value={comment}
+            value={complaint_detail}
             onChange={(e) => {
-              setComment(e.target.value);
-              if (errors.comment) setErrors(prev => ({ ...prev, comment: false }));
+              setComplaintDetail(e.target.value);
+              if (errors.complaint_detail) setErrors(prev => ({ ...prev, complaint_detail: false }));
             }}
             placeholder={t("complaintPlaceholder")}
             rows={5}
             className={cn(
               "w-full bg-muted/50 border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-none",
-              errors.comment ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : "border-border focus:border-primary"
+              errors.complaint_detail ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : "border-border focus:border-primary"
             )}
           />
-          {errors.comment && <p className="text-xs text-red-500 mt-1 animate-in slide-in-from-top-1">{t("complaintRequired")}</p>}
+          {errors.complaint_detail && <p className="text-xs text-red-500 mt-1 animate-in slide-in-from-top-1">{t("complaintRequired")}</p>}
         </div>
 
         {/* Submit */}
         <button
           onClick={handleSubmit}
-          className="w-full flex items-center justify-center gap-2 py-3.5 px-4 bg-gradient-to-r from-primary to-primary/80 hover:from-primary hover:to-primary text-primary-foreground rounded-xl font-semibold shadow-md shadow-primary/25 transition-all hover:scale-[1.02] active:scale-[0.98]"
+          disabled={isSubmitting}
+          className="w-full flex items-center justify-center gap-2 py-3.5 px-4 bg-gradient-to-r from-primary to-primary/80 hover:from-primary hover:to-primary text-primary-foreground rounded-xl font-semibold shadow-md shadow-primary/25 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
         >
           <Send className="w-4 h-4" />
-          {t("submitButton")}
+          {isSubmitting ? 'Submitting...' : t("submitButton")}
         </button>
       </div>
     </div>

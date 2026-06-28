@@ -8,7 +8,7 @@ import { MetricsSection } from "./metrics/metrics-section";
 import { ComplaintManagementTable } from "./complaints/complaint-management-table";
 import { logger } from "@/logger/logger";
 
-export function DashboardContent({ isLoading: externalLoading = false, data }: DashboardProps) {
+export function DashboardContent({ isLoading: externalLoading = false, data, onRefresh }: DashboardProps & { onRefresh?: () => void }) {
   const { isLoading, handleRefresh } = useDashboard();
 
   const combinedLoading = isLoading;
@@ -16,6 +16,12 @@ export function DashboardContent({ isLoading: externalLoading = false, data }: D
   const handleSettings = () => {
     // Handle settings action
     logger.info("Settings clicked");
+  };
+
+  const handleComplaintRefresh = () => {
+    if (onRefresh) {
+      onRefresh();
+    }
   };
 
   return (
@@ -34,7 +40,7 @@ export function DashboardContent({ isLoading: externalLoading = false, data }: D
       <ChartsSection isLoading={combinedLoading} />
 
       {/* Complaint Management Table */}
-      <ComplaintManagementTable data={data?.complaints} isLoading={combinedLoading} />
+      <ComplaintManagementTable data={data?.complaints} isLoading={combinedLoading} onRefresh={handleComplaintRefresh} />
 
     </div>
   );

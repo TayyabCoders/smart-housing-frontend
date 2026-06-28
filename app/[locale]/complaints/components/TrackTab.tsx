@@ -2,15 +2,17 @@ import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { HelpCircle, Search } from 'lucide-react';
 import { cn } from '@/lib/tailwindUtils/utils';
-import { Complaint, ComplaintStatus } from '../types';
+import { Complaint } from '@/app/[locale]/dashboard/types';
+import { ComplaintStatus } from '../types';
 
 interface TrackTabProps {
   complaints: Complaint[];
+  loading?: boolean;
 }
 
-const STATUS_ORDER: ComplaintStatus[] = ['Submitted', 'Pending', 'In Progress', 'Resolved'];
+const STATUS_ORDER: ComplaintStatus[] = ['pending', 'in_progress', 'resolved', 'rejected'];
 
-export default function TrackTab({ complaints }: TrackTabProps) {
+export default function TrackTab({ complaints, loading }: TrackTabProps) {
   const t = useTranslations("complaints.track");
   
   const [trackId, setTrackId] = useState('');
@@ -18,16 +20,16 @@ export default function TrackTab({ complaints }: TrackTabProps) {
 
   const handleTrack = () => {
     if (!trackId.trim()) return;
-    const found = complaints.find(c => c.id === trackId.trim().toUpperCase());
+    const found = complaints.find(c => c.tracking_id === trackId.trim().toUpperCase() || c.id === trackId.trim().toUpperCase());
     setResult(found || null);
   };
 
   const getStatusBadgeColor = (status: ComplaintStatus) => {
     switch (status) {
-      case 'Submitted': return 'bg-blue-50 text-blue-600 border-blue-200';
-      case 'Pending': return 'bg-amber-50 text-amber-600 border-amber-200';
-      case 'In Progress': return 'bg-purple-50 text-purple-600 border-purple-200';
-      case 'Resolved': return 'bg-emerald-50 text-emerald-600 border-emerald-200';
+      case 'pending': return 'bg-amber-50 text-amber-600 border-amber-200';
+      case 'in_progress': return 'bg-purple-50 text-purple-600 border-purple-200';
+      case 'resolved': return 'bg-emerald-50 text-emerald-600 border-emerald-200';
+      case 'rejected': return 'bg-red-50 text-red-600 border-red-200';
       default: return 'bg-gray-50 text-gray-600 border-gray-200';
     }
   };
@@ -88,7 +90,7 @@ export default function TrackTab({ complaints }: TrackTabProps) {
                       isActive ? "text-primary" : 
                       isCompleted ? "text-emerald-600" : "text-muted-foreground"
                     )}>
-                      {t(`steps.${status === 'In Progress' ? 'inProgress' : status.toLowerCase()}`)}
+                      {t(`steps.${status === 'in_progress' ? 'inProgress' : status}`)}
                     </div>
                   </div>
                   {!isLast && (
@@ -109,7 +111,7 @@ export default function TrackTab({ complaints }: TrackTabProps) {
           {/* Details Card */}
           <div className="bg-background border rounded-2xl overflow-hidden shadow-sm">
             <div className="bg-muted/40 border-b px-6 py-4 flex items-center justify-between">
-              <span className="font-mono text-primary font-bold tracking-wider">{result.id}</span>
+              <span className="font-mono text-primary font-bold tracking-wider">{result.tracking_id}</span>
               <span className={cn(
                 "px-2.5 py-0.5 rounded-full text-xs font-bold border",
                 getStatusBadgeColor(result.status)
@@ -120,7 +122,7 @@ export default function TrackTab({ complaints }: TrackTabProps) {
             <div className="p-6 space-y-4">
               <div className="grid grid-cols-3 gap-4 pb-4 border-b">
                 <div className="col-span-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t("details.name")}</div>
-                <div className="col-span-2 text-sm text-foreground font-medium">{result.name}</div>
+                <div className="col-span-2 text-sm text-foreground font-medium">{result.fullname}</div>
               </div>
               <div className="grid grid-cols-3 gap-4 pb-4 border-b">
                 <div className="col-span-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t("details.gender")}</div>
@@ -128,15 +130,15 @@ export default function TrackTab({ complaints }: TrackTabProps) {
               </div>
               <div className="grid grid-cols-3 gap-4 pb-4 border-b">
                 <div className="col-span-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t("details.complaint")}</div>
-                <div className="col-span-2 text-sm text-foreground">{result.comment}</div>
+                <div className="col-span-2 text-sm text-foreground">{result.complaint_detail}</div>
               </div>
               <div className="grid grid-cols-3 gap-4 pb-4 border-b">
                 <div className="col-span-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t("details.submitted")}</div>
-                <div className="col-span-2 text-sm text-foreground">{result.submittedAt}</div>
+                <div className="col-span-2 text-sm text-foreground">{result.created_at}</div>
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div className="col-span-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t("details.updated")}</div>
-                <div className="col-span-2 text-sm text-foreground">{result.updatedAt}</div>
+                <div className="col-span-2 text-sm text-foreground">{result.updated_at}</div>
               </div>
             </div>
           </div>
