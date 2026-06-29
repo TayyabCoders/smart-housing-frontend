@@ -10,6 +10,7 @@ import {
   submitVote,
   fetchResults,
   fetchActivityLog,
+  fetchElectionStatus,
 } from "@/redux/slices/voting-slice";
 
 // Types
@@ -34,9 +35,11 @@ export default function VotingContainer() {
     candidates,
     results,
     activityLog,
+    electionStatus,
     loading,
     loadingResults,
     loadingActivity,
+    loadingElectionStatus,
     submitting,
     error,
   } = useAppSelector((state) => state.voting);
@@ -63,8 +66,9 @@ export default function VotingContainer() {
   const [modal, setModal] = useState<ModalState>({ show: false, title: "", text: "", icon: "" });
 
   useEffect(() => {
-    // Fetch candidates from API
+    // Fetch candidates and election status from API
     dispatch(fetchCandidates());
+    dispatch(fetchElectionStatus());
 
     // Client-side initialization
     setTodayDate(
@@ -234,14 +238,9 @@ export default function VotingContainer() {
       </div>
 
       <div className="relative z-10 space-y-6">
-        <VotingHeader todayDate={todayDate} totalVotes={totalVotes} />
+        <VotingHeader electionStatus={electionStatus} />
 
-        <VotingStats
-          totalVotes={totalVotes}
-          totalCandidates={candidates.length}
-          leader={leader}
-          leaderPct={leaderPct}
-        />
+        <VotingStats electionStatus={electionStatus} />
 
         <VotingTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 

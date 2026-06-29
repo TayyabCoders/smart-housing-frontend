@@ -4,6 +4,7 @@ import {
   VoteRequest,
   VotingResultsData,
   ActivityLogEntry,
+  ElectionStatus,
   VotingModuleApiResponse,
 } from "@/app/[locale]/voting/types/candidate";
 import { axiosInstance } from "@/lib/axios/axios-instance";
@@ -12,9 +13,11 @@ interface VotingState {
   candidates: Candidate[];
   results: VotingResultsData | null;
   activityLog: ActivityLogEntry[];
+  electionStatus: ElectionStatus | null;
   loading: boolean;
   loadingResults: boolean;
   loadingActivity: boolean;
+  loadingElectionStatus: boolean;
   submitting: boolean;
   error: string | null;
 }
@@ -23,9 +26,11 @@ const initialState: VotingState = {
   candidates: [],
   results: null,
   activityLog: [],
+  electionStatus: null,
   loading: false,
   loadingResults: false,
   loadingActivity: false,
+  loadingElectionStatus: false,
   submitting: false,
   error: null,
 };
@@ -58,6 +63,13 @@ export const fetchResults = createAsyncThunk("voting/fetchResults", async () => 
 export const fetchActivityLog = createAsyncThunk("voting/fetchActivityLog", async () => {
   const response =
     await axiosInstance.get<VotingModuleApiResponse<ActivityLogEntry[]>>("/voting/activity-log");
+  return response.data;
+});
+
+// ✅ Fetch election status
+export const fetchElectionStatus = createAsyncThunk("voting/fetchElectionStatus", async () => {
+  const response =
+    await axiosInstance.get<VotingModuleApiResponse<ElectionStatus>>("/voting/election/status");
   return response.data;
 });
 
@@ -125,6 +137,19 @@ const votingSlice = createSlice({
       .addCase(fetchActivityLog.rejected, (state, action) => {
         state.loadingActivity = false;
         state.error = action.error.message || "Failed to fetch activity log";
+      })
+      /* -------------------------- FETCH ELECTION STATUS -------------------------- */
+      .addCase(fetchElectionStatus.pending, (state) => {
+        state.loadingElectionStatus = true;
+        state.error = null;
+      })
+      .addCase(fetchElectionStatus.fulfilled, (state, action) => {
+        state.loadingElectionStatus = false;
+        state.electionStatus = action.payload.data || null;
+      })
+      .addCase(fetchElectionStatus.rejected, (state, action) => {
+        state.loadingElectionStatus = false;
+        state.error = action.error.message || "Failed to fetch election status";
       });
   },
 });

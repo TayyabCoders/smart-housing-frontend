@@ -38,6 +38,21 @@ export type ActivityLogEntry = {
   timestamp: string;
 };
 
+export type ElectionStatus = {
+  id: string;
+  title: string;
+  society_name: string;
+  society_location: string;
+  election_date: string;
+  is_active: boolean;
+  total_eligible_voters: number;
+  total_votes_cast: number;
+  participation_rate: number;
+  total_candidates: number;
+  leading: string | null;
+  top_candidate: number | null;
+};
+
 // Generic API response for Voting module
 export type VotingModuleApiResponse<T> = {
   success: boolean;
