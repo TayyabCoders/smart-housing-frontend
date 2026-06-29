@@ -202,6 +202,11 @@ export default function VotingContainer() {
           console.error("Failed to save to localStorage", e);
         }
 
+        // Fetch updated data from backend
+        dispatch(fetchResults());
+        dispatch(fetchActivityLog());
+        dispatch(fetchElectionStatus());
+
         // Reset Form
         setSelectedCandidate(null);
         setVoterName("");
@@ -225,7 +230,21 @@ export default function VotingContainer() {
         showToast(result.message || "Failed to submit vote", "error");
       }
     } catch (error: any) {
-      showToast(error.message || "Failed to submit vote", "error");
+      // Extract specific error message from backend response
+      let errorMessage = "Failed to submit vote";
+      if (error.response?.data?.error?.message) {
+        try {
+          // Parse the stringified JSON message
+          const parsedMessage = JSON.parse(error.response.data.error.message);
+          errorMessage = parsedMessage.message || errorMessage;
+        } catch {
+          // If parsing fails, use the raw message
+          errorMessage = error.response.data.error.message;
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      showToast(errorMessage, "error");
     }
   };
 

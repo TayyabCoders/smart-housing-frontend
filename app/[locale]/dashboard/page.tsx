@@ -6,11 +6,13 @@ import { DynamicLayout } from "@/components/layout/dynamic-layout";
 import { DashboardContent } from "./components/dashboard-content";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import { fetchComplaints } from "@/redux/slices/complaint-slice";
+import { fetchDashboardMetrics } from "@/redux/slices/dashboard-slice";
 
 export default function DashboardPage() {
   const { setLayoutType } = useLayout();
   const dispatch = useAppDispatch();
-  const { complaints, loading } = useAppSelector((state) => state.complaints);
+  const { complaints, loading: complaintsLoading, pending, in_progress, resolved, rejected } = useAppSelector((state) => state.complaints);
+  const { metrics, loading: metricsLoading } = useAppSelector((state) => state.dashboard);
 
   useEffect(() => {
     setLayoutType("dashboard");
@@ -18,15 +20,26 @@ export default function DashboardPage() {
 
   useEffect(() => {
     dispatch(fetchComplaints());
+    dispatch(fetchDashboardMetrics());
   }, [dispatch]);
 
   const handleRefresh = () => {
     dispatch(fetchComplaints());
+    dispatch(fetchDashboardMetrics());
+  };
+
+  const isLoading = complaintsLoading || metricsLoading;
+
+  const complaintCounts = {
+    pending,
+    in_progress,
+    resolved,
+    rejected,
   };
 
   return (
     <DynamicLayout>
-      <DashboardContent data={{ complaints }} isLoading={loading} onRefresh={handleRefresh} />
+      <DashboardContent data={{ complaints, metrics: metrics || undefined, complaintCounts }} isLoading={isLoading} onRefresh={handleRefresh} />
     </DynamicLayout>
   );
 }

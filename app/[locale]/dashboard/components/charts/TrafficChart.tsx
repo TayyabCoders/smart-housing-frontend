@@ -8,10 +8,16 @@ import { ChartCard } from "./ChartCard";
 
 interface TrafficChartProps {
   data?: ChartDataPoint[];
+  complaintCounts?: {
+    pending: number;
+    in_progress: number;
+    resolved: number;
+    rejected: number;
+  };
   isLoading?: boolean;
 }
 
-export function TrafficChart({ data, isLoading = false }: TrafficChartProps) {
+export function TrafficChart({ data, complaintCounts, isLoading = false }: TrafficChartProps) {
   const t = useTranslations("dashboard");
 
   const defaultData: ChartDataPoint[] = [
@@ -21,7 +27,15 @@ export function TrafficChart({ data, isLoading = false }: TrafficChartProps) {
     { name: t("charts.data.complaints.rejected"), value: 37, color: "#ef4444" },
   ];
 
-  const chartData = data || defaultData;
+  // Use complaint counts from API if available, otherwise use default data
+  const chartData = complaintCounts
+    ? [
+        { name: t("charts.data.complaints.pending"), value: complaintCounts.pending, color: "#f59e0b" },
+        { name: t("charts.data.complaints.inProgress"), value: complaintCounts.in_progress, color: "#3b82f6" },
+        { name: t("charts.data.complaints.resolved"), value: complaintCounts.resolved, color: "#10b981" },
+        { name: t("charts.data.complaints.rejected"), value: complaintCounts.rejected, color: "#ef4444" },
+      ]
+    : data || defaultData;
 
   return (
     <ChartCard

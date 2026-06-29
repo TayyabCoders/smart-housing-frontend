@@ -17,10 +17,16 @@ interface ChartsSectionProps {
     activity?: ChartDataPoint[];
     performance?: ChartDataPoint[];
   };
+  complaintCounts?: {
+    pending: number;
+    in_progress: number;
+    resolved: number;
+    rejected: number;
+  };
   isLoading?: boolean;
 }
 
-export function ChartsSection({ data, isLoading = false }: ChartsSectionProps) {
+export function ChartsSection({ data, complaintCounts, isLoading = false }: ChartsSectionProps) {
   const t = useTranslations("dashboard");
 
   return (
@@ -34,7 +40,7 @@ export function ChartsSection({ data, isLoading = false }: ChartsSectionProps) {
       <div className="space-y-6">
         {/* Two Column Charts */}
         <BaseGrid columns={{ sm: 1, md: 2 }}>
-          <TrafficChart data={data?.traffic} isLoading={isLoading} />
+          <TrafficChart data={data?.traffic} complaintCounts={complaintCounts} isLoading={isLoading} />
           <PerformanceChart data={data?.performance} isLoading={isLoading} />
         </BaseGrid>
       </div>

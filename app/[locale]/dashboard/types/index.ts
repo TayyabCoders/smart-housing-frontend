@@ -85,5 +85,11 @@ export interface DashboardProps {
     products?: Product[];
     orders?: Order[];
     complaints?: Complaint[];
+    complaintCounts?: {
+      pending: number;
+      in_progress: number;
+      resolved: number;
+      rejected: number;
+    };
   };
 }

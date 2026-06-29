@@ -37,7 +37,7 @@ export function DashboardContent({ isLoading: externalLoading = false, data, onR
       <MetricsSection data={data?.metrics} isLoading={combinedLoading} />
 
       {/* Charts Section */}
-      <ChartsSection isLoading={combinedLoading} />
+      <ChartsSection complaintCounts={data?.complaintCounts} isLoading={combinedLoading} />
 
       {/* Complaint Management Table */}
       <ComplaintManagementTable data={data?.complaints} isLoading={combinedLoading} onRefresh={handleComplaintRefresh} />
