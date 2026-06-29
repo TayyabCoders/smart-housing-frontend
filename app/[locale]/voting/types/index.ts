@@ -1,10 +1,12 @@
 export interface Candidate {
-  id: number;
+  election_id: string;
   name: string;
   role: string;
   party: string;
-  pClass: string;
+  p_class: string;
   emoji: string;
+  id: string;
+  created_at: string;
 }
 
 export interface ActivityLogEntry {
@@ -12,12 +14,12 @@ export interface ActivityLogEntry {
   time: string;
 }
 
-export type VotingTabId = 'vote' | 'results' | 'rules';
+export type VotingTabId = "vote" | "results" | "rules";
 
 export interface ToastState {
   show: boolean;
   msg: string;
-  type: 'success' | 'error';
+  type: "success" | "error";
 }
 
 export interface ModalState {
