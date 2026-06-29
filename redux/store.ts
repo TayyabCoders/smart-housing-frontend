@@ -7,6 +7,7 @@ import { combineReducers } from "redux";
 import usersReducer from "./slices/user-slice";
 import loginReducer from "./slices/login-slice";
 import signupReducer from "./slices/signup-slice";
+import votingReducer from "./slices/voting-slice";
 import createWebStorage from "redux-persist/lib/storage/createWebStorage";
 
 // Create a noop storage for SSR
@@ -31,6 +32,7 @@ const customStorage =
 const rootReducer = combineReducers({
   users: usersReducer,
   login: loginReducer,
+  voting: votingReducer,
   signup: signupReducer,
 });
 
