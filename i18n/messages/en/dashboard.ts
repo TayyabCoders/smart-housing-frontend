@@ -87,8 +87,8 @@ const dashboard = {
       description: "Complaint status distribution",
     },
     performanceMetrics: {
-      title: "Performance Metrics",
-      description: "Key performance indicators",
+      title: "Voting Metrics",
+      description: "Candidate voting results",
     },
     conversionFunnel: {
       title: "Conversion Funnel",

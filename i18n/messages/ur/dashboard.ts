@@ -75,8 +75,8 @@ const dashboard = {
       description: "شکایات کی حیثیت کی تقسیم",
     },
     performanceMetrics: {
-      title: "کارکردگی کے پیمانے",
-      description: "اہم کارکردگی کے اشارے",
+      title: "ووٹنگ کے پیمانے",
+      description: "امیدوار کے ووٹنگ کے نتائج",
     },
     conversionFunnel: {
       title: "کنورژن فنل",

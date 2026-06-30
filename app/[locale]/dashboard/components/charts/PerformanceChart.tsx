@@ -3,25 +3,23 @@ import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Toolti
 
 import { BarChartIcon } from "@/lib/icons/icons";
 import { useTranslations } from "next-intl";
-import { ChartDataPoint } from "../../types";
 import { ChartCard } from "./ChartCard";
+import { VotingResultsData } from "@/app/[locale]/voting/types/candidate";
 
 interface PerformanceChartProps {
-  data?: ChartDataPoint[];
+  votingResults?: VotingResultsData;
   isLoading?: boolean;
 }
 
-export function PerformanceChart({ data, isLoading = false }: PerformanceChartProps) {
+export function PerformanceChart({ votingResults, isLoading = false }: PerformanceChartProps) {
   const t = useTranslations("dashboard");
 
-  const defaultData: ChartDataPoint[] = [
-    { month: t("charts.data.months.mar"), orders: 329 },
-    { month: t("charts.data.months.apr"), orders: 400 },
-    { month: t("charts.data.months.may"), orders: 481 },
-    { month: t("charts.data.months.jun"), orders: 380 },
-  ];
-
-  const chartData = data || defaultData;
+  // Transform voting results data to chart format
+  const chartData =
+    votingResults?.candidates?.map((candidate) => ({
+      candidate: candidate.name,
+      votes: candidate.votes,
+    })) || [];
 
   return (
     <ChartCard
@@ -30,13 +28,20 @@ export function PerformanceChart({ data, isLoading = false }: PerformanceChartPr
       icon={BarChartIcon}
       isLoading={isLoading}
     >
-      <ResponsiveContainer width="100%" height={250}>
-        <BarChart data={chartData}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="month" />
+      <ResponsiveContainer width="100%" height={300}>
+        <BarChart data={chartData} margin={{ bottom: 60 }}>
+          <CartesianGrid strokeDasharray=" 3 3" />
+          <XAxis
+            dataKey="candidate"
+            angle={-45}
+            textAnchor="end"
+            height={80}
+            interval={0}
+            tick={{ fontSize: 12 }}
+          />
           <YAxis />
           <Tooltip />
-          <Bar dataKey="orders" fill="#8b5cf6" name="Orders" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="votes" fill="#8b5cf6" name="Votes" radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </ChartCard>

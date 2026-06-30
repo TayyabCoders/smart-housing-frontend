@@ -1,32 +1,27 @@
 "use client";
 import { useTranslations } from "next-intl";
-import { ChartDataPoint } from "../../types";
 import Heading from "@/components/shared/heading";
 import { BaseGrid } from "@/components/shared/base-grid";
-import { RevenueChart } from "./RevenueChart";
-import { SalesChart } from "./SalesChart";
 import { TrafficChart } from "./TrafficChart";
-import { ActivityChart } from "./ActivityChart";
 import { PerformanceChart } from "./PerformanceChart";
+import { VotingResultsData } from "@/app/[locale]/voting/types/candidate";
 
 interface ChartsSectionProps {
-  data?: {
-    revenue?: ChartDataPoint[];
-    sales?: ChartDataPoint[];
-    traffic?: ChartDataPoint[];
-    activity?: ChartDataPoint[];
-    performance?: ChartDataPoint[];
-  };
   complaintCounts?: {
     pending: number;
     in_progress: number;
     resolved: number;
     rejected: number;
   };
+  votingResults?: VotingResultsData;
   isLoading?: boolean;
 }
 
-export function ChartsSection({ data, complaintCounts, isLoading = false }: ChartsSectionProps) {
+export function ChartsSection({
+  complaintCounts,
+  votingResults,
+  isLoading = false,
+}: ChartsSectionProps) {
   const t = useTranslations("dashboard");
 
   return (
@@ -40,8 +35,8 @@ export function ChartsSection({ data, complaintCounts, isLoading = false }: Char
       <div className="space-y-6">
         {/* Two Column Charts */}
         <BaseGrid columns={{ sm: 1, md: 2 }}>
-          <TrafficChart data={data?.traffic} complaintCounts={complaintCounts} isLoading={isLoading} />
-          <PerformanceChart data={data?.performance} isLoading={isLoading} />
+          <TrafficChart complaintCounts={complaintCounts} isLoading={isLoading} />
+          <PerformanceChart votingResults={votingResults} isLoading={isLoading} />
         </BaseGrid>
       </div>
     </section>
