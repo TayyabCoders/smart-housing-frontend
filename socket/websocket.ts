@@ -1,6 +1,7 @@
 // lib/socket/websocket.ts
 import { socketConfig } from "./config";
 import { logger } from "@/logger/logger";
+import { getToken, getUserFromCookies } from "@/lib/cookie/cookie";
 
 let ws: WebSocket | null = null;
 let reconnectTimer: NodeJS.Timeout | null = null;
@@ -14,7 +15,18 @@ export function getWebSocket(): WebSocket | null {
       logger.error("[WebSocket] Max reconnection attempts reached");
       return null;
     }
-    ws = new WebSocket(socketConfig.webSocketUrl);
+    
+    // Get token from cookies
+    const token = getToken();
+    // Use email as user_id to match backend (backend uses email from JWT sub claim)
+    const user = getUserFromCookies();
+    const user_email = user?.email || "anonymous";
+    const client_id = user_email;
+    
+    // Construct WebSocket URL with client_id and token
+    const wsUrl = `${socketConfig.webSocketUrl}/ws/${client_id}${token ? `?token=${token}` : ''}`;
+    
+    ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
       logger.info("[WebSocket] Connected");

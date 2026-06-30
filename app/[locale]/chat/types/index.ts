@@ -23,6 +23,7 @@ export interface ChatMessage {
 }
 
 export interface ChatWindowProps {
-  activeChatId: number | null;
+  activeChatId: string | null;
   onBack: () => void;
+  selectedUser?: { username: string; id: string } | null;
 }

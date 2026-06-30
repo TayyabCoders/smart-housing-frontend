@@ -2,7 +2,6 @@
 
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/tailwindUtils/utils";
-import { Plus } from "lucide-react";
 import type { ChatFilterId } from "../types";
 
 interface ChatSidebarProps {
@@ -12,9 +11,6 @@ interface ChatSidebarProps {
 
 const filters = [
   { id: "all" as const, labelKey: "filters.all", count: 0 },
-  { id: "unread" as const, labelKey: "filters.unread", count: 62 },
-  { id: "favorites" as const, labelKey: "filters.favorites", count: 0 },
-  { id: "groups" as const, labelKey: "filters.groups", count: 42 },
 ];
 
 export function ChatSidebar({ activeFilter, onSelectFilter }: ChatSidebarProps) {
@@ -45,11 +41,6 @@ export function ChatSidebar({ activeFilter, onSelectFilter }: ChatSidebarProps) 
           </button>
         );
       })}
-      
-      {/* Quick Add Button matching image */}
-      <button className="flex-shrink-0 h-8 w-8 flex items-center justify-center rounded-full bg-muted/50 text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all border border-foreground/20 hover:border-primary/20">
-        <Plus className="h-4 w-4" />
-      </button>
     </div>
   );
 }

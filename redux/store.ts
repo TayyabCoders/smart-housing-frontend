@@ -10,6 +10,7 @@ import signupReducer from "./slices/signup-slice";
 import complaintsReducer from "./slices/complaint-slice";
 import votingReducer from "./slices/voting-slice";
 import dashboardReducer from "./slices/dashboard-slice";
+import chatReducer from "./slices/chat-slice";
 import createWebStorage from "redux-persist/lib/storage/createWebStorage";
 
 // Create a noop storage for SSR
@@ -38,6 +39,7 @@ const rootReducer = combineReducers({
   signup: signupReducer,
   complaints: complaintsReducer,
   dashboard: dashboardReducer,
+  chat: chatReducer,
 });
 
 const persistConfig = {

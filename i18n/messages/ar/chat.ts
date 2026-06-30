@@ -14,8 +14,8 @@ const chat = {
     },
   },
   list: {
-    topics: "Topics",
-    searchPlaceholder: "Search topics...",
+    topics: "New Messages",
+    searchPlaceholder: "Search resident",
     actions: {
       share: "Share",
       add: "Add",
@@ -47,7 +47,7 @@ const chat = {
       time4: "Just now",
     },
     input: {
-      placeholder: "Send your message to Dr. freud...",
+      placeholder: "Send your message...",
     },
   },
 } as const;
