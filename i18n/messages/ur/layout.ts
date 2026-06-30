@@ -40,9 +40,9 @@ const layout = {
           { href: "/surveillance/face", title: "چہرے کی پہچان" },
           { href: "/surveillance/alerts", title: "سیکیورٹی الرٹس" },
           { href: "/surveillance/logs", title: "انٹری لاگز" },
-        ]
+        ],
       },
-      { href: "/chatbot", title: "چیٹ بوٹ" }
+      { href: "/chatbot", title: "Ask OTTO" },
     ],
   },
 
