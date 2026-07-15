@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { StatCard } from './StatCard'
 import { DetectionRow } from './DetectionRow'
 import { LiveCameraFeed } from './LiveCameraFeed'
-import { alerts, recentFaces, recentVehicles, cameras } from '../lib/mock-data'
+import { recentFaces, cameras } from '../lib/mock-data'
 import { BoundingBox } from '../types'
 import { toast } from 'sonner'
 import { useTranslations } from 'next-intl'
@@ -21,6 +21,7 @@ import {
   DetectResult,
 } from '../lib/parking-api'
 import { useAccessLog } from '../hooks/useAccessLog'
+import { RegisterVehicleDialog } from './RegisterVehicleDialog'
 
 type SurveillanceView = 'all' | 'live' | 'vehicle' | 'face' | 'alerts' | 'logs'
 
@@ -78,51 +79,77 @@ export default function SurveillanceContainer({ defaultView = 'all' }: Surveilla
 }
 
 function AllTab({ t }: { t: any }) {
+  const { activity, stats, loading, refresh } = useAccessLog()
+
+  const recentVehicleActivity = activity.slice(0, 5)
+  const securityAlerts = activity.filter(
+    (log) => log.vehicle_status === 'blacklist' || log.vehicle_status === 'unknown',
+  ).slice(0, 5)
+
+  const statusBadgeClass: Record<string, string> = {
+    resident: 'resident',
+    visitor: 'visitor',
+    staff: 'staff',
+    blacklist: 'blacklist',
+    unknown: 'unknown',
+  }
+
   return (
     <div className="space-y-6">
-      <header>
-        <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">{t('overview.title')}</p>
-        <h1 className="mt-1 flex items-center gap-2 text-2xl font-semibold">
-          <Activity className="h-6 w-6 text-primary" />
-          {t('overview.subtitle')}
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">Complete view of all surveillance data.</p>
+      <header className="flex items-end justify-between gap-3">
+        <div>
+          <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">{t('overview.title')}</p>
+          <h1 className="mt-1 flex items-center gap-2 text-2xl font-semibold">
+            <Activity className="h-6 w-6 text-primary" />
+            {t('overview.subtitle')}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">Live security overview — all gates today.</p>
+        </div>
+        <Button size="sm" variant="outline" onClick={refresh} disabled={loading}>
+          {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Refresh'}
+        </Button>
       </header>
 
-      {/* Combined Stats */}
+      {/* Live stats */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <StatCard label="Total Detections" value="660" tone="success" />
-        <StatCard label="Vehicles" value="248" />
-        <StatCard label="Faces" value="412" />
-        <StatCard label="Alerts" value={alerts.length} tone="danger" />
+        <StatCard label="Vehicles Today" value={String(stats.detected_today)} tone="success" icon={Car} />
+        <StatCard label="Residents" value={String(stats.residents)} icon={Users} />
+        <StatCard label="Visitors" value={String(stats.visitors)} tone="warning" icon={Users} />
+        <StatCard label="Security Alerts" value={String(stats.blacklist_hits + stats.unknown)} tone="danger" icon={AlertTriangle} />
       </div>
 
-      {/* Recent Vehicles */}
+      {/* Recent vehicle access */}
       <section className="rounded-xl border border-border bg-card/50 p-5">
         <header className="mb-3 flex items-center justify-between">
           <h2 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">{t('overview.recentVehicles')}</h2>
+          <span className="text-xs text-muted-foreground font-mono">Today · Gate Camera</span>
         </header>
-        <div className="space-y-2">
-          {recentVehicles.map((v) => (
-            <DetectionRow
-              key={v.id}
-              kind="vehicle"
-              primary={v.plate}
-              secondary={v.owner}
-              meta={`${v.vehicleType}${v.flat ? ' · ' + v.flat : ''}`}
-              time={v.time}
-              camera={v.camera}
-              confidence={v.confidence}
-              status={v.status}
-            />
-          ))}
-        </div>
+        {recentVehicleActivity.length === 0 ? (
+          <p className="text-sm text-muted-foreground py-2">No vehicle activity yet today.</p>
+        ) : (
+          <div className="space-y-2">
+            {recentVehicleActivity.map((log) => (
+              <DetectionRow
+                key={log.id}
+                kind="vehicle"
+                primary={log.plate_number}
+                secondary={log.owner_name ?? 'Unknown owner'}
+                meta={log.flat_no ? `Flat ${log.flat_no}` : log.vehicle_status}
+                time={new Date(log.accessed_at).toLocaleTimeString()}
+                camera="Gate Camera"
+                confidence={92}
+                status={statusBadgeClass[log.vehicle_status] ?? 'unknown'}
+              />
+            ))}
+          </div>
+        )}
       </section>
 
-      {/* Recent Faces */}
+      {/* Recent Faces (mock — face detection module pending) */}
       <section className="rounded-xl border border-border bg-card/50 p-5">
         <header className="mb-3 flex items-center justify-between">
           <h2 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">{t('overview.recentFaces')}</h2>
+          <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground/50">Face module pending</span>
         </header>
         <div className="space-y-2">
           {recentFaces.map((f) => (
@@ -141,27 +168,37 @@ function AllTab({ t }: { t: any }) {
         </div>
       </section>
 
-      {/* All Alerts */}
-      <section className="rounded-xl border border-red-500/30 bg-red-500/5 p-5">
+      {/* Security Alerts from real access log */}
+      <section className={`rounded-xl border p-5 ${securityAlerts.length > 0 ? 'border-red-500/30 bg-red-500/5' : 'border-border bg-card/50'}`}>
         <header className="mb-3 flex items-center gap-2">
-          <Activity className="h-4 w-4 text-red-500" />
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-red-500">{t('overview.recentAlerts')}</h2>
+          <AlertTriangle className={`h-4 w-4 ${securityAlerts.length > 0 ? 'text-red-500' : 'text-muted-foreground'}`} />
+          <h2 className={`text-sm font-semibold uppercase tracking-widest ${securityAlerts.length > 0 ? 'text-red-500' : 'text-muted-foreground'}`}>
+            {t('overview.recentAlerts')}
+          </h2>
         </header>
-        <ul className="space-y-2">
-          {alerts.map((a) => (
-            <li key={a.id} className="flex items-start gap-3 rounded-lg border border-border bg-card/60 p-3">
-              <AlertTriangle className={`mt-0.5 h-4 w-4 ${a.severity === 'high' ? 'text-red-500' : a.severity === 'medium' ? 'text-yellow-500' : 'text-muted-foreground'}`} />
-              <div className="flex-1">
-                <div className="text-sm font-medium">{a.title}</div>
-                <div className="text-xs text-muted-foreground">{a.description}</div>
-              </div>
-              <div className="text-right font-mono text-xs text-muted-foreground">
-                <div>{a.time}</div>
-                <div className="text-[10px] uppercase tracking-widest">{a.camera}</div>
-              </div>
-            </li>
-          ))}
-        </ul>
+        {securityAlerts.length === 0 ? (
+          <p className="text-sm text-green-500 font-medium">✓ No security alerts today.</p>
+        ) : (
+          <ul className="space-y-2">
+            {securityAlerts.map((log) => (
+              <li key={log.id} className="flex items-start gap-3 rounded-lg border border-border bg-card/60 p-3">
+                <AlertTriangle className={`mt-0.5 h-4 w-4 shrink-0 ${log.vehicle_status === 'blacklist' ? 'text-red-500' : 'text-yellow-500'}`} />
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium">
+                    {log.vehicle_status === 'blacklist' ? 'Blacklisted vehicle' : 'Unknown vehicle'} — <span className="font-mono">{log.plate_number}</span>
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    Access {log.action === 'DENIED' ? 'denied' : 'granted'}{log.owner_name ? ` · ${log.owner_name}` : ''}
+                  </div>
+                </div>
+                <div className="text-right font-mono text-xs text-muted-foreground shrink-0">
+                  <div>{new Date(log.accessed_at).toLocaleTimeString()}</div>
+                  <div className="text-[10px] uppercase tracking-widest">Gate Camera</div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
     </div>
   )
@@ -192,6 +229,7 @@ function LiveTab({ cameras, t }: { cameras: any[]; t: any }) {
 function VehicleTab({ camera, setCamera, cameras, t }: { camera: string; setCamera: (v: string) => void; cameras: any[]; t: any }) {
   const [detection, setDetection] = useState<DetectResult | null>(null)
   const [detecting, setDetecting] = useState(false)
+  const [registerOpen, setRegisterOpen] = useState(false)
   const { activity, stats, loading: activityLoading, error: activityError, refresh: refreshActivity } = useAccessLog()
 
   const handleCapture = async (blob: Blob) => {
@@ -258,9 +296,14 @@ function VehicleTab({ camera, setCamera, cameras, t }: { camera: string; setCame
               </option>
             ))}
           </select>
-          <Button onClick={() => toast(t('common.vehicleRegistrationComingSoon'))}>
+          <Button onClick={() => setRegisterOpen(true)}>
             {t('vehicle.registerVehicle')}
           </Button>
+          <RegisterVehicleDialog
+            open={registerOpen}
+            onClose={() => setRegisterOpen(false)}
+            onSuccess={refreshActivity}
+          />
         </div>
       </header>
 
