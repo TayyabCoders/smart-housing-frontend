@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { Camera, CameraOff, Maximize2, Radio } from 'lucide-react'
+import { Camera, CameraOff, Maximize2, Radio, Scan } from 'lucide-react'
 import { Button } from '@/components/ui/button/button'
 import { BoundingBox } from '../types'
 
@@ -10,6 +10,8 @@ interface LiveCameraFeedProps {
   cameraName?: string
   boxes?: BoundingBox[]
   mode?: 'plate' | 'face'
+  onCapture?: (blob: Blob) => void
+  capturing?: boolean
 }
 
 export function LiveCameraFeed({
@@ -17,8 +19,11 @@ export function LiveCameraFeed({
   cameraName = 'Main Gate · CAM-01',
   boxes = [],
   mode = 'plate',
+  onCapture,
+  capturing = false,
 }: LiveCameraFeedProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
   const [streaming, setStreaming] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -47,6 +52,20 @@ export function LiveCameraFeed({
     setStreaming(false)
   }
 
+  const capture = () => {
+    if (!videoRef.current || !onCapture) return
+    const video = videoRef.current
+    const canvas = canvasRef.current || document.createElement('canvas')
+    canvas.width = video.videoWidth || 640
+    canvas.height = video.videoHeight || 480
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+    canvas.toBlob((blob) => {
+      if (blob) onCapture(blob)
+    }, 'image/jpeg', 0.92)
+  }
+
   useEffect(() => {
     return () => stop()
   }, [])
@@ -65,6 +84,9 @@ export function LiveCameraFeed({
 
   return (
     <div className="relative overflow-hidden rounded-xl border border-border bg-black/60">
+      {/* Hidden canvas for frame capture */}
+      <canvas ref={canvasRef} className="hidden" />
+
       {/* Header bar */}
       <div className="absolute left-0 right-0 top-0 z-20 flex items-center justify-between px-3 py-2 text-xs">
         <div className="flex items-center gap-2 rounded-md bg-black/50 px-2 py-1 backdrop-blur">
@@ -78,7 +100,7 @@ export function LiveCameraFeed({
         </div>
         <div className="flex items-center gap-2 rounded-md bg-black/50 px-2 py-1 font-mono text-white/70 backdrop-blur">
           <Radio className="h-3 w-3" />
-          {mode === 'plate' ? 'ALPR · YOLOv8' : 'Face Recognition · ArcFace'}
+          {mode === 'plate' ? 'ALPR · YOLOv10' : 'Face Recognition · ArcFace'}
         </div>
       </div>
 
@@ -137,6 +159,18 @@ export function LiveCameraFeed({
       <div className="absolute bottom-0 left-0 right-0 z-20 flex items-center justify-between px-3 py-2 text-[10px] font-mono text-white/60">
         <span>{new Date().toLocaleString()}</span>
         <div className="flex items-center gap-1">
+          {streaming && onCapture && (
+            <Button
+              size="sm"
+              variant="default"
+              className="h-7 gap-1 bg-green-600 text-white hover:bg-green-500"
+              onClick={capture}
+              disabled={capturing}
+            >
+              <Scan className="h-3 w-3" />
+              {capturing ? 'Detecting…' : 'Capture & Detect'}
+            </Button>
+          )}
           {streaming ? (
             <Button size="sm" variant="ghost" className="h-7 text-white/80 hover:text-white" onClick={stop}>
               <CameraOff className="mr-1 h-3 w-3" /> Stop
