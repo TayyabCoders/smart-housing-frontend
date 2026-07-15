@@ -12,8 +12,15 @@ import { alerts, recentFaces, recentVehicles, cameras } from '../lib/mock-data'
 import { BoundingBox } from '../types'
 import { toast } from 'sonner'
 import { useTranslations } from 'next-intl'
-import { detectPlate, recordEntry, DetectResult } from '../lib/parking-api'
-import { useParkingLogs } from '../hooks/useParkingLogs'
+import {
+  detectPlate,
+  registerVehicle,
+  updateVehicleStatus,
+  grantAccess,
+  denyAccess,
+  DetectResult,
+} from '../lib/parking-api'
+import { useAccessLog } from '../hooks/useAccessLog'
 
 type SurveillanceView = 'all' | 'live' | 'vehicle' | 'face' | 'alerts' | 'logs'
 
@@ -24,12 +31,14 @@ interface SurveillanceContainerProps {
 export default function SurveillanceContainer({ defaultView = 'all' }: SurveillanceContainerProps) {
   const t = useTranslations('surveillance')
   const [camera, setCamera] = useState('gate-1')
-  const blacklistHits = alerts.filter((a) => a.kind === 'blacklist').length
+  const { stats: accessStats } = useAccessLog()
 
   const faceBoxes: BoundingBox[] = [
     { id: 'b1', x: 38, y: 20, w: 22, h: 32, label: recentFaces[0].name, confidence: recentFaces[0].confidence, tone: 'success' },
     { id: 'b2', x: 12, y: 30, w: 16, h: 24, label: 'Unknown', confidence: 71, tone: 'danger' },
   ]
+
+  const totalAlerts = accessStats.blacklist_hits + accessStats.unknown
 
   return (
     <div className="h-full overflow-y-auto p-4 md:p-6 space-y-6">
@@ -51,10 +60,10 @@ export default function SurveillanceContainer({ defaultView = 'all' }: Surveilla
 
       {/* Stats */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <StatCard label={t('stats.vehiclesToday')} value="—" hint="Live from backend" icon={Car} tone="success" />
+        <StatCard label={t('stats.vehiclesToday')} value={String(accessStats.detected_today || '—')} hint="Live from backend" icon={Car} tone="success" />
         <StatCard label={t('stats.facesVerified')} value="412" hint="98.6% match rate" icon={ScanFace} tone="success" />
-        <StatCard label={t('stats.activeVisitors')} value="17" hint="3 awaiting approval" icon={Users} tone="warning" />
-        <StatCard label={t('stats.alerts24h')} value={alerts.length} hint={`${blacklistHits} blacklist hit`} icon={AlertTriangle} tone="danger" />
+        <StatCard label={t('stats.activeVisitors')} value={String(accessStats.visitors)} hint="Registered today" icon={Users} tone="warning" />
+        <StatCard label={t('stats.alerts24h')} value={totalAlerts} hint={`${accessStats.blacklist_hits} blacklist hit`} icon={AlertTriangle} tone="danger" />
       </div>
 
       {/* Content based on view */}
@@ -183,7 +192,7 @@ function LiveTab({ cameras, t }: { cameras: any[]; t: any }) {
 function VehicleTab({ camera, setCamera, cameras, t }: { camera: string; setCamera: (v: string) => void; cameras: any[]; t: any }) {
   const [detection, setDetection] = useState<DetectResult | null>(null)
   const [detecting, setDetecting] = useState(false)
-  const { logs, loading: logsLoading, refresh: refreshLogs } = useParkingLogs()
+  const { activity, stats, loading: activityLoading, error: activityError, refresh: refreshActivity } = useAccessLog()
 
   const handleCapture = async (blob: Blob) => {
     setDetecting(true)
@@ -208,9 +217,24 @@ function VehicleTab({ camera, setCamera, cameras, t }: { camera: string; setCame
       h: 18,
       label: detection.plate_number!,
       confidence: Math.round((detection.confidence ?? 0.92) * 100),
-      tone: 'success',
+      tone: (detection.resident_status === 'blacklist' || detection.resident_status === 'unknown')
+        ? 'danger'
+        : 'success',
     },
   ] : []
+
+  const ACTION_STYLE: Record<string, string> = {
+    GRANTED: 'border-green-500/30 bg-green-500/15 text-green-500',
+    DENIED: 'border-red-500/30 bg-red-500/15 text-red-500',
+  }
+
+  const STATUS_BADGE: Record<string, string> = {
+    resident: 'border-green-500/40 text-green-500',
+    visitor: 'border-yellow-500/40 text-yellow-500',
+    staff: 'border-blue-500/40 text-blue-500',
+    blacklist: 'border-red-500/40 text-red-500',
+    unknown: 'border-muted-foreground/40 text-muted-foreground',
+  }
 
   return (
     <div className="space-y-6">
@@ -240,11 +264,12 @@ function VehicleTab({ camera, setCamera, cameras, t }: { camera: string; setCame
         </div>
       </header>
 
+      {/* Live stats from today's access log */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <StatCard label={t('stats.detectedToday')} value={String(logs.length)} tone="success" />
-        <StatCard label="Currently Inside" value={String(logs.filter(l => l.status === 'IN').length)} />
-        <StatCard label="Exited" value={String(logs.filter(l => l.status === 'OUT').length)} tone="warning" />
-        <StatCard label={t('stats.blacklistHits')} value="0" tone="danger" />
+        <StatCard label="Detected Today" value={String(stats.detected_today)} tone="success" icon={Car} />
+        <StatCard label="Residents" value={String(stats.residents)} />
+        <StatCard label="Visitors" value={String(stats.visitors)} tone="warning" icon={Users} />
+        <StatCard label="Blacklist Hits" value={String(stats.blacklist_hits)} tone="danger" icon={AlertTriangle} />
       </div>
 
       <Tabs defaultValue="live" className="w-full">
@@ -264,7 +289,12 @@ function VehicleTab({ camera, setCamera, cameras, t }: { camera: string; setCame
                 capturing={detecting}
               />
             </div>
-            <VehicleDetectionPanel detection={detection} detecting={detecting} onRefreshLogs={refreshLogs} t={t} />
+            <VehicleDetectionPanel
+              detection={detection}
+              detecting={detecting}
+              onRefreshLogs={refreshActivity}
+              t={t}
+            />
           </div>
         </TabsContent>
 
@@ -273,36 +303,66 @@ function VehicleTab({ camera, setCamera, cameras, t }: { camera: string; setCame
             <div className="lg:col-span-2">
               <VehicleUploadPane onDetected={setDetection} detecting={detecting} setDetecting={setDetecting} t={t} />
             </div>
-            <VehicleDetectionPanel detection={detection} detecting={detecting} onRefreshLogs={refreshLogs} t={t} />
+            <VehicleDetectionPanel
+              detection={detection}
+              detecting={detecting}
+              onRefreshLogs={refreshActivity}
+              t={t}
+            />
           </div>
         </TabsContent>
       </Tabs>
 
+      {/* Recent Access Activity */}
       <section className="rounded-xl border border-border bg-card/50 p-5">
-        <header className="mb-3 flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">{t('vehicle.recentEntries')}</h2>
-          <Button size="sm" variant="outline" onClick={() => refreshLogs()} disabled={logsLoading}>
-            {logsLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Refresh'}
+        <header className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">Recent Activity</h2>
+            <p className="mt-0.5 text-xs text-muted-foreground">All gate access events — grants and denials</p>
+          </div>
+          <Button size="sm" variant="outline" onClick={refreshActivity} disabled={activityLoading}>
+            {activityLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Refresh'}
           </Button>
         </header>
-        <div className="space-y-2">
-          {logs.length === 0 && !logsLoading && (
-            <p className="text-sm text-muted-foreground">No entries yet. Start the backend and detect a vehicle.</p>
-          )}
-          {logs.map((log, i) => (
-            <DetectionRow
-              key={i}
-              kind="vehicle"
-              primary={log.plate_number}
-              secondary={log.status === 'IN' ? 'Currently inside' : `Exited · ${log.duration_minutes ?? 0} min`}
-              meta={log.fee != null ? `PKR ${log.fee}` : 'Active'}
-              time={new Date(log.entry_time).toLocaleTimeString()}
-              camera="Gate Camera"
-              confidence={90}
-              status={log.status === 'IN' ? 'visitor' : 'resident'}
-            />
-          ))}
-        </div>
+
+        {activityError && (
+          <p className="mb-3 text-xs text-red-500">Backend unavailable: {activityError}</p>
+        )}
+
+        {activity.length === 0 && !activityLoading ? (
+          <p className="py-4 text-center text-sm text-muted-foreground">
+            No activity yet. Detect a vehicle and open the gate or block it.
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {activity.map((log) => (
+              <div
+                key={log.id}
+                className={`flex items-center gap-3 rounded-lg border px-4 py-3 ${ACTION_STYLE[log.action] ?? 'border-border bg-card/40'}`}
+              >
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-mono font-bold text-sm">{log.plate_number}</span>
+                    <Badge variant="outline" className={`text-[10px] uppercase tracking-widest ${STATUS_BADGE[log.vehicle_status] ?? ''}`}>
+                      {log.vehicle_status}
+                    </Badge>
+                    {log.owner_name && (
+                      <span className="text-xs text-muted-foreground">{log.owner_name}{log.flat_no ? ` · ${log.flat_no}` : ''}</span>
+                    )}
+                  </div>
+                </div>
+                <div className="text-right shrink-0">
+                  <div className={`text-xs font-semibold uppercase tracking-widest ${log.action === 'GRANTED' ? 'text-green-500' : 'text-red-500'}`}>
+                    {log.action === 'GRANTED' ? '✓ Gate Opened' : '✗ Blocked'}
+                  </div>
+                  <div className="text-[10px] text-muted-foreground font-mono">
+                    {new Date(log.accessed_at).toLocaleTimeString()}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
     </div>
   )
@@ -407,65 +467,138 @@ function FaceTab({ camera, setCamera, boxes, cameras, t }: { camera: string; set
 }
 
 function AlertsTab({ t }: { t: any }) {
-  const kindMeta: Record<string, any> = {
-    blacklist: { icon: ShieldCheck, tone: 'danger', label: t('alerts.blacklist') },
-    unknown: { icon: AlertTriangle, tone: 'warning', label: t('alerts.unknown') },
-    tailgate: { icon: AlertTriangle, tone: 'warning', label: t('alerts.tailgate') },
-    expired: { icon: Activity, tone: 'default', label: t('alerts.expired') },
+  const { activity, loading, error, refresh } = useAccessLog()
+
+  // Only blacklist and unknown detections are security alerts
+  const securityAlerts = activity.filter(
+    (log) => log.vehicle_status === 'blacklist' || log.vehicle_status === 'unknown',
+  )
+
+  const alertConfig: Record<string, {
+    icon: React.ElementType
+    label: string
+    ring: string
+    iconBg: string
+    badgeClass: string
+    title: () => string
+    desc: (log: any) => string
+  }> = {
+    blacklist: {
+      icon: ShieldCheck,
+      label: 'BLACKLIST',
+      ring: 'border-red-500/40 bg-red-500/5',
+      iconBg: 'bg-red-500/20 text-red-500',
+      badgeClass: 'border-red-500/40 text-red-500',
+      title: () => `Blacklisted vehicle detected`,
+      desc: (log) => `Plate ${log.plate_number} attempted entry · Access ${log.action === 'GRANTED' ? 'was granted' : 'DENIED'}`,
+    },
+    unknown: {
+      icon: AlertTriangle,
+      label: 'UNKNOWN',
+      ring: 'border-yellow-500/40 bg-yellow-500/5',
+      iconBg: 'bg-yellow-500/20 text-yellow-500',
+      badgeClass: 'border-yellow-500/40 text-yellow-500',
+      title: () => `Unknown vehicle detected`,
+      desc: (log) => `Plate ${log.plate_number} is not registered in the system · Action: ${log.action}`,
+    },
   }
 
   return (
     <div className="space-y-6">
-      <header>
-        <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">{t('overview.title')}</p>
-        <h1 className="mt-1 text-2xl font-semibold">{t('alerts.title')}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">{t('alerts.subtitle')}</p>
+      <header className="flex items-end justify-between gap-3">
+        <div>
+          <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">{t('overview.title')}</p>
+          <h1 className="mt-1 text-2xl font-semibold">{t('alerts.title')}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Blacklisted and unknown vehicle detections from gate cameras.
+          </p>
+        </div>
+        <Button size="sm" variant="outline" onClick={refresh} disabled={loading}>
+          {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Refresh'}
+        </Button>
       </header>
 
-      <ul className="space-y-3">
-        {alerts.map((a) => {
-          const m = kindMeta[a.kind]
-          const Icon = m.icon
-          const ring = a.severity === 'high'
-            ? 'border-red-500/40 bg-red-500/5'
-            : a.severity === 'medium'
-              ? 'border-yellow-500/40 bg-yellow-500/5'
-              : 'border-border bg-card/50'
-          return (
-            <li key={a.id} className={`flex items-start gap-4 rounded-xl border p-4 ${ring}`}>
-              <div className={`flex h-10 w-10 items-center justify-center rounded-md ${
-                a.severity === 'high' ? 'bg-red-500/20 text-red-500'
-                : a.severity === 'medium' ? 'bg-yellow-500/20 text-yellow-500'
-                : 'bg-muted text-muted-foreground'
-              }`}>
-                <Icon className="h-5 w-5" />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="text-[10px] uppercase tracking-widest">{m.label}</Badge>
-                  <span className="font-mono text-xs text-muted-foreground">{a.camera} · {a.time}</span>
+      {/* Summary chips */}
+      <div className="flex gap-3 flex-wrap">
+        <div className="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm">
+          <ShieldCheck className="h-4 w-4 text-red-500" />
+          <span className="font-semibold text-red-500">{securityAlerts.filter(a => a.vehicle_status === 'blacklist').length}</span>
+          <span className="text-muted-foreground">Blacklist hits</span>
+        </div>
+        <div className="flex items-center gap-2 rounded-lg border border-yellow-500/30 bg-yellow-500/10 px-4 py-2 text-sm">
+          <AlertTriangle className="h-4 w-4 text-yellow-500" />
+          <span className="font-semibold text-yellow-500">{securityAlerts.filter(a => a.vehicle_status === 'unknown').length}</span>
+          <span className="text-muted-foreground">Unknown vehicles</span>
+        </div>
+      </div>
+
+      {error && (
+        <div className="rounded-lg border border-red-500/30 bg-red-500/5 p-4 text-sm text-red-500">
+          Backend unavailable: {error}. Make sure the FastAPI server is running on port 8000.
+        </div>
+      )}
+
+      {loading ? (
+        <div className="flex items-center justify-center p-12">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      ) : securityAlerts.length === 0 ? (
+        <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border bg-card/30 py-16 text-center">
+          <ShieldCheck className="h-10 w-10 text-green-500" />
+          <p className="font-semibold text-green-500">No Security Alerts</p>
+          <p className="text-sm text-muted-foreground">All detected vehicles are registered residents, visitors, or staff.</p>
+        </div>
+      ) : (
+        <ul className="space-y-3">
+          {securityAlerts.map((log) => {
+            const cfg = alertConfig[log.vehicle_status]
+            if (!cfg) return null
+            const Icon = cfg.icon
+            return (
+              <li key={log.id} className={`flex items-start gap-4 rounded-xl border p-4 ${cfg.ring}`}>
+                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md ${cfg.iconBg}`}>
+                  <Icon className="h-5 w-5" />
                 </div>
-                <h3 className="mt-1 font-semibold">{a.title}</h3>
-                <p className="text-sm text-muted-foreground">{a.description}</p>
-              </div>
-              <div className="flex flex-col gap-2">
-                <Button size="sm" variant="outline">{t('alerts.review')}</Button>
-                <Button size="sm" variant="ghost">{t('alerts.dismiss')}</Button>
-              </div>
-            </li>
-          )
-        })}
-      </ul>
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge variant="outline" className={`text-[10px] uppercase tracking-widest ${cfg.badgeClass}`}>
+                      {cfg.label}
+                    </Badge>
+                    <span className="font-mono text-xs text-muted-foreground">
+                      Gate Camera · {new Date(log.accessed_at).toLocaleTimeString()}
+                    </span>
+                    <span className={`text-[10px] font-semibold uppercase tracking-widest ${log.action === 'DENIED' ? 'text-red-500' : 'text-green-500'}`}>
+                      {log.action}
+                    </span>
+                  </div>
+                  <h3 className="mt-1 font-semibold">
+                    {cfg.title()} — <span className="font-mono">{log.plate_number}</span>
+                  </h3>
+                  <p className="text-sm text-muted-foreground">{cfg.desc(log)}</p>
+                </div>
+              </li>
+            )
+          })}
+        </ul>
+      )}
     </div>
   )
 }
 
 function LogsTab({ t }: { t: any }) {
-  const { logs, total, loading, error, refresh } = useParkingLogs()
+  const { activity, stats, loading, error, refresh } = useAccessLog()
 
-  const parkingStatusStyle: Record<string, string> = {
-    IN: 'border-green-500/30 bg-green-500/15 text-green-500',
-    OUT: 'border-border bg-muted text-muted-foreground',
+  const actionStyle: Record<string, string> = {
+    GRANTED: 'border-green-500/30 bg-green-500/15 text-green-500',
+    DENIED: 'border-red-500/30 bg-red-500/15 text-red-500',
+  }
+
+  const statusStyle: Record<string, string> = {
+    resident: 'border-green-500/30 bg-green-500/15 text-green-500',
+    staff: 'border-blue-500/30 bg-blue-500/15 text-blue-500',
+    visitor: 'border-yellow-500/30 bg-yellow-500/15 text-yellow-500',
+    blacklist: 'border-red-500/30 bg-red-500/15 text-red-500',
+    unknown: 'border-border bg-muted text-muted-foreground',
   }
 
   const faceStatusStyles: Record<string, string> = {
@@ -488,37 +621,55 @@ function LogsTab({ t }: { t: any }) {
         </Button>
       </header>
 
+      {/* Today summary */}
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+        {[
+          { label: 'Total Today', value: stats.detected_today },
+          { label: 'Residents', value: stats.residents },
+          { label: 'Visitors', value: stats.visitors },
+          { label: 'Staff', value: stats.staff },
+          { label: 'Blacklist Hits', value: stats.blacklist_hits },
+        ].map(({ label, value }) => (
+          <div key={label} className="rounded-lg border border-border bg-card/40 px-4 py-3 text-center">
+            <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">{label}</div>
+            <div className="mt-1 text-2xl font-bold">{value}</div>
+          </div>
+        ))}
+      </div>
+
       {error && (
         <div className="rounded-lg border border-red-500/30 bg-red-500/5 p-4 text-sm text-red-500">
           Backend unavailable: {error}. Make sure the FastAPI server is running on port 8000.
         </div>
       )}
 
-      <Tabs defaultValue="vehicles">
+      <Tabs defaultValue="access">
         <TabsList>
-          <TabsTrigger value="vehicles">Vehicles ({total})</TabsTrigger>
+          <TabsTrigger value="access">Access Log ({activity.length})</TabsTrigger>
           <TabsTrigger value="faces">Faces</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="vehicles" className="mt-4">
+        <TabsContent value="access" className="mt-4">
           {loading ? (
             <div className="flex items-center justify-center p-12">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
-          ) : logs.length === 0 ? (
+          ) : activity.length === 0 ? (
             <p className="py-8 text-center text-sm text-muted-foreground">
-              No parking records yet. Detect a vehicle to create records.
+              No access events yet. Use Vehicle Recognition to grant or deny entry.
             </p>
           ) : (
             <Table
-              headers={['Plate', 'Status', 'Entry Time', 'Exit Time', 'Duration', 'Fee']}
-              rows={logs.map((log) => [
+              headers={['Plate', 'Status', 'Owner', 'Flat', 'Action', 'Time']}
+              rows={activity.map((log) => [
                 <span className="font-mono font-semibold">{log.plate_number}</span>,
-                <Badge variant="outline" className={parkingStatusStyle[log.status] ?? ''}>{log.status}</Badge>,
-                new Date(log.entry_time).toLocaleString(),
-                log.exit_time ? new Date(log.exit_time).toLocaleString() : '—',
-                log.duration_minutes != null ? `${log.duration_minutes} min` : log.elapsed_minutes != null ? `${log.elapsed_minutes} min (active)` : '—',
-                log.fee != null ? `PKR ${log.fee}` : log.current_fee != null ? `PKR ${log.current_fee} (est.)` : '—',
+                <Badge variant="outline" className={statusStyle[log.vehicle_status] ?? ''}>{log.vehicle_status}</Badge>,
+                <span>{log.owner_name ?? '—'}</span>,
+                <span>{log.flat_no ?? '—'}</span>,
+                <Badge variant="outline" className={actionStyle[log.action] ?? ''}>
+                  {log.action === 'GRANTED' ? '✓ Granted' : '✗ Denied'}
+                </Badge>,
+                new Date(log.accessed_at).toLocaleString(),
               ])}
             />
           )}
@@ -569,6 +720,39 @@ function Table({ headers, rows }: { headers: string[]; rows: React.ReactNode[][]
 }
 
 
+const STATUS_CONFIG: Record<string, { label: string; badgeClass: string; panelClass: string; textClass: string }> = {
+  resident: {
+    label: 'RESIDENT',
+    badgeClass: 'bg-green-500 text-green-50',
+    panelClass: 'border-green-500/30 bg-green-500/5',
+    textClass: 'text-green-500',
+  },
+  visitor: {
+    label: 'VISITOR',
+    badgeClass: 'bg-yellow-500 text-yellow-900',
+    panelClass: 'border-yellow-500/30 bg-yellow-500/5',
+    textClass: 'text-yellow-500',
+  },
+  staff: {
+    label: 'STAFF',
+    badgeClass: 'bg-blue-500 text-blue-50',
+    panelClass: 'border-blue-500/30 bg-blue-500/5',
+    textClass: 'text-blue-500',
+  },
+  blacklist: {
+    label: 'BLACKLISTED',
+    badgeClass: 'bg-red-600 text-red-50',
+    panelClass: 'border-red-500/30 bg-red-500/5',
+    textClass: 'text-red-500',
+  },
+  unknown: {
+    label: 'UNKNOWN',
+    badgeClass: 'bg-red-500 text-red-50',
+    panelClass: 'border-red-500/30 bg-red-500/5',
+    textClass: 'text-red-500',
+  },
+}
+
 function VehicleDetectionPanel({
   detection,
   detecting,
@@ -581,18 +765,81 @@ function VehicleDetectionPanel({
   t: any
 }) {
   const [recording, setRecording] = useState(false)
+  const [actioning, setActioning] = useState(false)
 
   const handleOpenGate = async () => {
     if (!detection?.plate_number) return
     setRecording(true)
     try {
-      await recordEntry(detection.plate_number)
-      toast.success(`Gate opened · Entry recorded for ${detection.plate_number}`)
+      await grantAccess({
+        plate_number: detection.plate_number,
+        vehicle_status: detection.resident_status ?? 'unknown',
+        owner_name: detection.owner_name,
+        flat_no: detection.flat_number,
+        snapshot_url: detection.snapshot_url,
+      })
+      toast.success(`Gate opened for ${detection.plate_number}`)
       onRefreshLogs()
     } catch (e: any) {
       toast.error(e.message)
     } finally {
       setRecording(false)
+    }
+  }
+
+  const handleMarkAsVisitor = async () => {
+    if (!detection?.plate_number) return
+    setActioning(true)
+    try {
+      await registerVehicle({ plate_number: detection.plate_number, owner_name: 'Visitor', status: 'visitor' })
+      await grantAccess({
+        plate_number: detection.plate_number,
+        vehicle_status: 'visitor',
+        snapshot_url: detection.snapshot_url,
+      })
+      toast.success(`${detection.plate_number} registered as Visitor · Gate opened`)
+      onRefreshLogs()
+    } catch (e: any) {
+      toast.error(e.message)
+    } finally {
+      setActioning(false)
+    }
+  }
+
+  const handleBlock = async () => {
+    if (!detection?.plate_number) return
+    setActioning(true)
+    try {
+      const currentStatus = detection.resident_status
+      if (currentStatus && currentStatus !== 'unknown') {
+        await updateVehicleStatus(detection.plate_number, 'blacklist')
+      } else {
+        await registerVehicle({ plate_number: detection.plate_number, owner_name: 'Unknown', status: 'blacklist' })
+      }
+      await denyAccess({
+        plate_number: detection.plate_number,
+        vehicle_status: 'blacklist',
+        snapshot_url: detection.snapshot_url,
+      })
+      toast.error(`${detection.plate_number} blocked · Entry denied`)
+      onRefreshLogs()
+    } catch (e: any) {
+      toast.error(e.message)
+    } finally {
+      setActioning(false)
+    }
+  }
+
+  const handleUnblock = async () => {
+    if (!detection?.plate_number) return
+    setActioning(true)
+    try {
+      await updateVehicleStatus(detection.plate_number, 'visitor')
+      toast.success(`${detection.plate_number} unblocked → marked as Visitor`)
+    } catch (e: any) {
+      toast.error(e.message)
+    } finally {
+      setActioning(false)
     }
   }
 
@@ -619,38 +866,79 @@ function VehicleDetectionPanel({
     )
   }
 
+  const residentStatus = detection.resident_status ?? 'unknown'
+  const cfg = STATUS_CONFIG[residentStatus] ?? STATUS_CONFIG.unknown
   const confidence = Math.round((detection.confidence ?? 0.92) * 100)
+  const isBlocked = residentStatus === 'blacklist'
+  const isUnknown = residentStatus === 'unknown'
+  const isKnown = !isBlocked && !isUnknown
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-green-500/30 bg-green-500/5 p-5">
+    <div className={`flex flex-col gap-3 rounded-xl border p-5 ${cfg.panelClass}`}>
       <div className="flex items-center justify-between">
-        <Badge className="bg-green-500 text-green-50">● {t('vehicle.detected')}</Badge>
+        <Badge className={cfg.badgeClass}>● {cfg.label}</Badge>
         <span className="font-mono text-xs text-muted-foreground">{new Date().toLocaleTimeString()}</span>
       </div>
+
       <div>
         <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">{t('vehicle.plate')}</div>
         <div className="font-mono text-3xl font-bold tracking-widest">{detection.plate_number}</div>
       </div>
-      <div className="grid grid-cols-2 gap-3 text-sm">
-        <Field label="Source" value="Gate Camera" />
+
+      {detection.owner_name && (
+        <div className="grid grid-cols-2 gap-3 text-sm">
+          <Field label="Owner" value={detection.owner_name} />
+          {detection.flat_number && <Field label="Flat" value={detection.flat_number} />}
+          {detection.vehicle_type && <Field label="Type" value={detection.vehicle_type} />}
+        </div>
+      )}
+
+      <div className="grid grid-cols-2 gap-2 text-sm">
         <Field label="Method" value="YOLOv10 + OCR" />
+        <div className="flex items-center justify-between rounded-lg bg-card/60 px-3 py-2">
+          <span className="text-xs text-muted-foreground">Confidence</span>
+          <span className={`font-mono text-sm font-semibold ${cfg.textClass}`}>{confidence}%</span>
+        </div>
       </div>
-      <div className="flex items-center justify-between rounded-lg bg-card/60 p-3">
-        <span className="text-xs text-muted-foreground">{t('vehicle.matchConfidence')}</span>
-        <span className="font-mono text-lg font-semibold text-green-500">{confidence}%</span>
-      </div>
-      <div className="flex gap-2">
-        <Button className="flex-1" onClick={handleOpenGate} disabled={recording}>
+
+      {isBlocked && (
+        <div className="rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm font-semibold text-red-500">
+          ⛔ Entry Denied — Vehicle is Blacklisted
+        </div>
+      )}
+
+      {!isBlocked && (
+        <Button className="w-full" onClick={handleOpenGate} disabled={recording || actioning}>
           {recording ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : null}
           {t('vehicle.openGate')}
         </Button>
-        <Button variant="destructive" className="flex-1" onClick={() => toast.error(t('common.entryBlocked'))}>
-          {t('vehicle.block')}
+      )}
+
+      {isUnknown && (
+        <div className="flex gap-2">
+          <Button variant="outline" className="flex-1 text-xs" onClick={handleMarkAsVisitor} disabled={actioning}>
+            {actioning ? <Loader2 className="mr-1 h-3 w-3 animate-spin" /> : null}
+            Mark as Visitor
+          </Button>
+          <Button variant="destructive" className="flex-1 text-xs" onClick={handleBlock} disabled={actioning}>
+            Block
+          </Button>
+        </div>
+      )}
+
+      {isKnown && (
+        <Button variant="destructive" size="sm" onClick={handleBlock} disabled={actioning}>
+          {actioning ? <Loader2 className="mr-1 h-3 w-3 animate-spin" /> : null}
+          Block this Vehicle
         </Button>
-      </div>
-      <Button variant="outline" onClick={() => toast(t('common.visitorLogged'))}>
-        {t('vehicle.markAsVisitor')}
-      </Button>
+      )}
+
+      {isBlocked && (
+        <Button variant="outline" size="sm" onClick={handleUnblock} disabled={actioning}>
+          {actioning ? <Loader2 className="mr-1 h-3 w-3 animate-spin" /> : null}
+          Unblock Vehicle
+        </Button>
+      )}
     </div>
   )
 }
