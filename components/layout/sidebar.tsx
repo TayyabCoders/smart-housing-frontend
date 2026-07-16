@@ -26,6 +26,7 @@ import { useLayout } from "@/contexts/layout-context";
 import { removeAuthCookies } from "@/lib/cookie/cookie"; // New import
 import { useState } from "react";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/use-auth";
 
 interface SidebarProps {
   className?: string;
@@ -40,12 +41,17 @@ export function Sidebar({ className }: SidebarProps) {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [manuallyClosed, setManuallyClosed] = useState<string | null>(null);
+  const { user } = useAuth();
 
   // Responsive behavior: auto-collapse on tablet, hide collapse button on mobile
   const { isTablet, isDesktop, isLargeDesktop } = responsive;
 
-  let navItems = t.raw("items");
-  if (!Array.isArray(navItems)) navItems = [];
+  const ADMIN_ONLY_HREFS = new Set(["/", "/dashboard", "/users", "/surveillance"]);
+  const isAdmin = user?.role === "admin";
+
+  let allNavItems = t.raw("items");
+  if (!Array.isArray(allNavItems)) allNavItems = [];
+  const navItems = allNavItems.filter((item: any) => isAdmin || !ADMIN_ONLY_HREFS.has(item.href));
 
   const pickIcon = (title: string) => {
     const key = title.toLowerCase();
