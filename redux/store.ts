@@ -10,6 +10,7 @@ import signupReducer from "./slices/signup-slice";
 import complaintsReducer from "./slices/complaint-slice";
 import votingReducer from "./slices/voting-slice";
 import dashboardReducer from "./slices/dashboard-slice";
+import chatbotReducer from "./slices/chatbot-slice";
 import chatReducer from "./slices/chat-slice";
 import profileReducer from "./slices/profile-slice";
 import createWebStorage from "redux-persist/lib/storage/createWebStorage";
@@ -40,6 +41,7 @@ const rootReducer = combineReducers({
   signup: signupReducer,
   complaints: complaintsReducer,
   dashboard: dashboardReducer,
+  chatbot: chatbotReducer,
   chat: chatReducer,
   profile: profileReducer,
 });
