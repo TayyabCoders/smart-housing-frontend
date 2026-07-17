@@ -1,21 +1,19 @@
 "use client";
 
 import { useEffect } from "react";
-import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import { useLayout } from "@/contexts/layout-context";
 import { DynamicLayout } from "@/components/layout/dynamic-layout";
-import { Header } from "./components/header";
 import { HeroSection } from "./components/hero-section";
 import { PricingSection } from "@/components/shared/pricing-section";
 import { CTASection } from "@/components/shared/cta-section";
-import { SectionBorder } from "@/components/shared/section-border";
 import { FeaturesSection } from "./components/feature-section";
-import { ShowcaseSection } from "./components/show-case";
+import { StatBand } from "./components/stat-band";
+import { DashboardChecklistSection } from "./components/dashboard-checklist-section";
+import { Footer } from "./components/footer";
 
 export default function HomePage() {
   const { setLayoutType } = useLayout();
-  const t = useTranslations("home");
   const params = useParams();
   const isUrdu = params.locale === "ur";
 
@@ -26,24 +24,14 @@ export default function HomePage() {
 
   return (
     <DynamicLayout>
-      <div
-        className={
-          "min-h-screen flex flex-col relative overflow-hidden w-full bg-white dark:bg-black text-gray-900 dark:text-gray-100 transition-colors duration-300"
-        }
-      >
-        {/* <SectionBorder /> */}
-        <Header />
-        <SectionBorder />
+      <div className="min-h-screen flex flex-col relative overflow-hidden w-full bg-white">
         <HeroSection isUrdu={isUrdu} />
-        <SectionBorder />
         <FeaturesSection />
-        <SectionBorder />
-        <ShowcaseSection />
-        <SectionBorder />
+        <StatBand />
+        <DashboardChecklistSection />
         <PricingSection />
-        {/* <SectionBorder /> */}
         <CTASection />
-        <SectionBorder />
+        <Footer />
       </div>
     </DynamicLayout>
   );

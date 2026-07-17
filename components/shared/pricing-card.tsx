@@ -1,68 +1,87 @@
+"use client";
+
 import { Check } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useReveal } from "@/hooks/use-reveal";
 import { PricingPlan } from "./pricing-section";
-import { Button } from "../ui/button/button";
 
 interface PricingCardProps {
   plan: PricingPlan;
+  delay: 0 | 1 | 2;
 }
 
-export function PricingCard({ plan }: PricingCardProps) {
+export function PricingCard({ plan, delay }: PricingCardProps) {
+  const t = useTranslations("home.pricing");
+  const ref = useReveal<HTMLDivElement>();
+  const highlight = !!plan.isPopular;
+
   return (
     <div
-      className={`relative flex flex-col rounded-lg border transition-all duration-300 hover:shadow-lg ${
-        plan.isPopular
-          ? "border-primary/30 bg-primary/5 ring-2 ring-primary/20 md:scale-105"
-          : "border-border bg-background"
-      }`}
+      ref={ref}
+      className={`sr sr-scale d-${delay} relative rounded-2xl p-8 flex flex-col transition-all duration-300 hover:-translate-y-1`}
+      style={{
+        background: highlight ? "#111111" : "#ffffff",
+        border: highlight ? "none" : "1px solid #e5e7eb",
+        boxShadow: highlight ? "0 24px 64px rgba(0,0,0,0.2)" : "0 1px 3px rgba(0,0,0,0.04)",
+      }}
     >
-      {/* Popular Badge */}
-      {plan.isPopular && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-          <div className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
-            Most Popular
-          </div>
+      {highlight && (
+        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+          <span className="text-xs font-bold px-3.5 py-1.5 rounded-full bg-white text-gray-900 shadow-sm border border-gray-100">
+            {t("mostPopular")}
+          </span>
         </div>
       )}
 
-      <div className="flex flex-col flex-1 p-6 md:p-8">
-        {/* Plan Header */}
-        <div className="mb-6">
-          <h3 className="text-xl font-bold text-foreground mb-1">{plan.name}</h3>
-          <p className="text-sm text-muted-foreground">{plan.description}</p>
-        </div>
-
-        {/* Price */}
-        <div className="mb-6">
-          <div className="flex items-baseline gap-1">
-            <span className="text-4xl font-bold text-foreground">${plan.price}</span>
-            <span className="text-muted-foreground">/{plan.period}</span>
-          </div>
-        </div>
-
-        {/* Features */}
-        <div className="mb-8 flex-1">
-          <ul className="space-y-3">
-            {plan.features.map((feature, index) => (
-              <li key={index} className="flex items-start gap-3">
-                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-muted-foreground">{feature}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Button */}
-        <Button
-          variant={plan.buttonVariant}
-          className={`w-full ${
-            plan.isPopular
-              ? "bg-primary text-primary-foreground hover:bg-primary/90"
-              : "border-border text-foreground hover:bg-muted"
-          }`}
+      <div className="mb-6 pt-1">
+        <h3
+          className="font-bold text-xl mb-1.5 font-[family-name:var(--font-heading)]"
+          style={{ color: highlight ? "#ffffff" : "#111111" }}
         >
-          {plan.buttonText}
-        </Button>
+          {plan.name}
+        </h3>
+        <p style={{ color: highlight ? "#9ca3af" : "#6b7280", fontSize: "0.875rem" }}>
+          {plan.description}
+        </p>
       </div>
+
+      <div className="mb-7">
+        <span
+          className="text-5xl font-extrabold font-[family-name:var(--font-heading)]"
+          style={{ color: highlight ? "#ffffff" : "#111111", letterSpacing: "-0.03em" }}
+        >
+          ${plan.price}
+        </span>
+        <span style={{ color: highlight ? "#6b7280" : "#9ca3af", fontSize: "0.875rem" }}>
+          {" "}
+          {plan.period}
+        </span>
+      </div>
+
+      <ul className="space-y-3 flex-1 mb-7">
+        {plan.features.map((feature) => (
+          <li key={feature} className="flex items-start gap-3">
+            <Check
+              className="w-4 h-4 mt-0.5 flex-shrink-0"
+              style={{ color: highlight ? "#a5b4fc" : "#111111" }}
+              strokeWidth={2.5}
+            />
+            <span className="text-sm" style={{ color: highlight ? "#d1d5db" : "#374151" }}>
+              {feature}
+            </span>
+          </li>
+        ))}
+      </ul>
+
+      <button
+        className="w-full py-3 rounded-xl font-semibold text-sm transition-all duration-200 hover:opacity-85"
+        style={{
+          background: highlight ? "#ffffff" : "#111111",
+          color: highlight ? "#111111" : "#ffffff",
+        }}
+      >
+        {plan.buttonText}
+      </button>
     </div>
   );
 }

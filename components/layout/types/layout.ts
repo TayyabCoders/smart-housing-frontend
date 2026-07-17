@@ -52,7 +52,9 @@ export const LAYOUT_CONFIGS: Record<LayoutType, LayoutConfig> = {
     type: "website",
     showHeader: true,
     showSidebar: false,
-    showFooter: true,
+    // The home page brings its own branded Footer; DynamicLayout's generic
+    // SimpleFooter would otherwise render underneath it.
+    showFooter: false,
   },
   dashboard: {
     type: "dashboard",

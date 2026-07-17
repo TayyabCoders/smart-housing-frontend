@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useReveal } from "@/hooks/use-reveal";
 import { PricingCard } from "./pricing-card";
 
 export interface PricingPlan {
@@ -17,6 +18,7 @@ export interface PricingPlan {
 
 export function PricingSection() {
   const t = useTranslations("home.pricing");
+  const headRef = useReveal<HTMLDivElement>();
 
   const plans: PricingPlan[] = [
     {
@@ -74,34 +76,24 @@ export function PricingSection() {
   ];
 
   return (
-    <section className="relative py-16 md:py-24 px-4 md:px-6 lg:px-8 bg-white dark:bg-black transition-colors duration-300">
-      <div className="relative max-w-7xl mx-auto">
-        {/* Section Header */}
-        <div className="text-center mb-12 md:mb-16">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4 text-balance">
+    <section id="pricing" className="py-28 px-6 bg-white">
+      <div className="max-w-6xl mx-auto">
+        <div ref={headRef} className="sr text-center mb-16">
+          <p className="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">
+            {t("eyebrow")}
+          </p>
+          <h2
+            className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-5 font-[family-name:var(--font-heading)]"
+            style={{ letterSpacing: "-0.025em" }}
+          >
             {t("title")}
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto text-balance">
-            {t("subtitle")}
-          </p>
+          <p className="text-gray-500 text-lg">{t("subtitle")}</p>
         </div>
 
-        {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+        <div className="grid md:grid-cols-3 gap-5 items-center">
           {plans.map((plan, idx) => (
-            <PricingCard
-              key={plan.id}
-              plan={{
-                ...plan,
-                // For the second card, ensure it looks good in all themes
-                ...(idx === 1
-                  ? {
-                      buttonVariant: "default",
-                      isPopular: true,
-                    }
-                  : {}),
-              }}
-            />
+            <PricingCard key={plan.id} plan={plan} delay={idx as 0 | 1 | 2} />
           ))}
         </div>
       </div>

@@ -1,53 +1,51 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-
-import { Button } from "@/components/ui/button/button";
-import { CTASvg } from "@/components/svgs/cta-svg";
-
 import { useParams } from "next/navigation";
+import NextLink from "next/link";
+import { useReveal } from "@/hooks/use-reveal";
 
 export function CTASection() {
   const t = useTranslations("home");
   const params = useParams();
+  const locale = (params.locale as string) ?? "en";
   const isUrdu = params.locale === "ur";
+  const ref = useReveal<HTMLDivElement>();
 
   return (
-    <section className="relative w-full py-32 md:py-52 overflow-hidden bg-white dark:bg-black transition-colors duration-300">
-      <div className="absolute inset-0 pointer-events-none">
-        <CTASvg />
-      </div>
-
-      {/* Content */}
-      <div
-        className={`relative z-10 max-w-4xl mx-auto px-4 md:px-6 text-center pt-10 md:pt-20 ${isUrdu ? "font-urdu" : ""}`}
-      >
-        {/* Heading - force three lines, responsive font */}
-        <h3
-          className={`text-xl md:text-4xl lg:text-6xl font-bold text-foreground mb-8 leading-tight text-balance break-words ${isUrdu ? "font-urdu" : ""}`}
-          style={{ display: "block", whiteSpace: "pre-line", textAlign: "center" }}
-        >
-          {t("cta.title")}
-        </h3>
-
-        {/* CTA Buttons */}
-        <div className="flex flex-row lg:py-6 gap-2 sm:gap-4 justify-center items-center w-full flex-nowrap">
-          {/* Primary Button */}
-          <Button
-            size="sm"
-            className="min-w-0 sm:px-2 sm:py-2 lg:px-6 lg:py-6 text-xs lg:text-lg font-semibold rounded-lg transition-all duration-300 w-1/2 lg:w-1/4"
+    <section className="py-28 px-6" style={{ background: "#f9fafb" }}>
+      <div className="max-w-3xl mx-auto text-center">
+        <div ref={ref} className="sr">
+          <h2
+            className={`text-4xl md:text-6xl font-extrabold text-gray-900 mb-6 font-[family-name:var(--font-heading)] ${isUrdu ? "font-urdu" : ""}`}
+            style={{ letterSpacing: "-0.03em", lineHeight: 1.05 }}
           >
-            {t("cta.primaryButton")}
-          </Button>
-
-          {/* Secondary Button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="min-w-0 px-2 py-2 lg:px-6 lg:py-6 text-xs lg:text-lg font-semibold rounded-lg transition-all duration-300 w-1/2 lg:w-1/4"
+            {t("cta.titleLine1")}
+            <br />
+            {t("cta.titleLine2")}
+          </h2>
+          <p
+            className={`text-gray-500 text-lg mb-10 max-w-xl mx-auto leading-relaxed ${isUrdu ? "font-urdu" : ""}`}
           >
-            {t("cta.secondaryButton")}
-          </Button>
+            {t("cta.description")}
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <NextLink
+              href={`/${locale}/signup`}
+              className="font-semibold px-8 py-4 rounded-xl text-sm transition-all duration-200 hover:opacity-90 hover:-translate-y-0.5"
+              style={{ background: "#111111", color: "#ffffff" }}
+            >
+              {t("cta.primaryButton")}
+            </NextLink>
+            <button
+              type="button"
+              className="font-semibold px-8 py-4 rounded-xl text-sm transition-all duration-200 hover:bg-gray-100"
+              style={{ border: "1px solid #d1d5db", color: "#374151" }}
+            >
+              {t("cta.secondaryButton")}
+            </button>
+          </div>
+          <p className="text-gray-400 text-xs mt-6">{t("cta.trustLine")}</p>
         </div>
       </div>
     </section>

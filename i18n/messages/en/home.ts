@@ -1,57 +1,94 @@
 const home = {
   // Brand / Header
-  brand: "Next Boilerplate",
+  brand: "Smart Housing",
+
+  nav: {
+    features: "Features",
+    dashboard: "Dashboard",
+    pricing: "Pricing",
+    signIn: "Sign in",
+    getStarted: "Get started",
+    toggleMenu: "Toggle menu",
+  },
+
   // Main hero section
   hero: {
-    title: "Build modern apps with a powerful Next.js boilerplate",
+    waitlistBadge: "AI-Powered Society Management Platform",
+    titleLine1: "Secure, smart &",
+    titleHighlight: "connected",
+    titleLine2: "societies",
     description:
-      "Type-safe, scalable, and production-ready. Includes Redux Toolkit, React Query, Zod, React Hook Form, next-themes, shadcn/ui, socket.io, i18n, authentication, and a flexible layout system.",
-    subtitle:
-      "All-in-one starter for SaaS, dashboards, and web apps. Fast, beautiful, and developer-focused.",
-    waitlistBadge: "Production Ready Boilerplate",
-    primaryButton: "View Dashboard",
-    primaryButtonLabel: "View dashboard",
-    secondaryButton: "Documentation",
-    secondaryButtonLabel: "View documentation",
+      "AI facial recognition, vehicle access control, digital voting, and complaint management — one platform that keeps residents safe and management in control.",
+    primaryButton: "Go to Dashboard",
+    secondaryButton: "Book a Demo",
+    trustLine: "Trusted by 500+ modern residential communities",
+    tags: ["AI Surveillance", "Digital Voting", "Vehicle Access", "24/7 Alerts", "Multilingual"],
+    marqueeLogos: [
+      "Sunrise Society",
+      "Palm Heights",
+      "Green Valley",
+      "Royal Enclave",
+      "City Towers",
+      "Metro Park",
+      "Hillcrest",
+      "Lake View",
+    ],
   },
 
   // Feature showcase
   features: {
-    overlayImageAlt: "Platform showcase",
-    showcaseTitle: "Modern Developer Experience",
-    showcaseDescription: "Everything you need to build, scale, and launch production-grade apps.",
-    title: "What makes this boilerplate special?",
+    eyebrow: "Platform capabilities",
+    title: "Everything your society needs, in one platform",
     subtitle:
-      "A complete toolkit for SaaS, dashboards, and web apps. Built for speed, flexibility, and best practices.",
+      "Security, resident services, and governance — built for gated communities of every size.",
+    newBadge: "New",
+    learnMore: "Learn more",
     aiAutomation: {
-      title: "Type-Safe Everywhere",
+      title: "AI Facial Recognition",
       description:
-        "Full TypeScript support across backend, frontend, and API for maximum safety and DX.",
+        "Instantly identify residents and flag unknown visitors at every entry point with ArcFace-powered surveillance.",
     },
     lightningFast: {
-      title: "Lightning Fast UI",
+      title: "Vehicle & Access Control",
       description:
-        "Optimized with Next.js, shadcn/ui, and Tailwind for instant, beautiful interfaces.",
+        "Automatic number plate recognition logs every vehicle in and out — no manual gate registers required.",
     },
     enterpriseSecurity: {
-      title: "Authentication & Security",
-      description: "Built-in auth, protected routes, and secure best practices out of the box.",
+      title: "24/7 Live Monitoring",
+      description:
+        "Watch every camera feed in real time and get instant alerts the moment something looks wrong.",
     },
     scalableInfrastructure: {
-      title: "Scalable State & Data",
-      description: "Redux Toolkit, React Query, and Zod for robust state, async, and validation.",
+      title: "Digital Voting & Elections",
+      description:
+        "Run transparent society elections and polls residents can trust, with results tallied automatically.",
     },
     cloudNative: {
-      title: "Socket.io & Real-Time",
-      description: "First-class socket.io integration for real-time features and collaboration.",
+      title: "Complaint Management",
+      description:
+        "Residents log issues in seconds; management tracks, assigns, and resolves them without the paperwork.",
     },
     developerFirst: {
-      title: "Internationalization (i18n)",
-      description: "Next-intl and full RTL/LTR support for global-ready apps.",
+      title: "Multilingual Support",
+      description:
+        "Full English, Urdu, and Arabic support so every resident feels at home in the app.",
     },
   },
 
-  // Navigation
+  stats: {
+    societiesServed: "Societies served",
+    activeResidents: "Active residents",
+    uptimeGuarantee: "Uptime guarantee",
+    languagesSupported: "Languages supported",
+  },
+
+  dashboardSection: {
+    eyebrow: "Full control",
+    viewDemo: "View Dashboard Demo",
+    bookCall: "Book a Call",
+  },
+
+  // Navigation (unrelated legacy block — still referenced by components/layout/sidebar.tsx)
   navigation: {
     home: "Home",
     dashboard: "Dashboard",
@@ -61,47 +98,41 @@ const home = {
   },
 
   cta: {
-    title: "Start your app with Next.js boilerplate",
-    primaryButton: "Get Started",
-    secondaryButton: "Live Demo",
-  },
-  showcase: {
-    title: "Complete Starter Kit for Modern Web Apps",
+    titleLine1: "Ready to modernize",
+    titleLine2: "your housing society?",
     description:
-      "A production-ready Next.js starter with dynamic layout system, advanced form builder, real-time dashboard, enterprise authentication, and modern UI components.",
-    imageAlt: "Dashboard and app preview",
-    showcaseTitle: "Powerful & Modern Development Experience",
-    showcaseDescription:
-      "Build modern applications with all essential features, integrations, and tooling included.",
+      "Join 500+ housing societies already running smarter, safer communities on Smart Housing. Setup takes under 10 minutes.",
+    primaryButton: "Get Started — It's Free",
+    secondaryButton: "Book a Demo",
+    trustLine: "No credit card required · Cancel anytime",
+  },
+
+  showcase: {
+    title: "One dashboard for your entire society",
+    description:
+      "From the security gate to the AGM, Smart Housing brings surveillance, access control, resident services, and governance into a single real-time view.",
     features: {
-      layoutSystem: "Dynamic Layout System (multiple variants, responsive, state persistence)",
-      formBuilder: "Advanced Form Builder (type-safe, 20+ fields, dynamic validation)",
-      realtimeDashboard: "Real-time Dashboard (Socket.IO, WebSocket, live updates)",
-      enterpriseAuth: "Enterprise Authentication (role-based access, full auth flow)",
-      uiComponents: "Modern UI Components (shadcn/ui, Radix UI, custom themes)",
-      stateManagement: "State Management (Redux Toolkit, React Query, persistence)",
-      testingSuite: "Testing Suite (unit, integration, E2E, coverage)",
-      performance: "Performance Optimized (server components, lazy loading, bundle optimization)",
-      storybook: "Storybook Integration (isolated component development, client logging)",
-      socketTesting: "Local Socket.IO Testing (Express.js test server)",
-      apiNetworking: "API & Networking (Axios, middleware, type-safe endpoints, error handling)",
-      logging: "Logging System (client-side Pino, structured output)",
-      theming: "Theming & UI (next-themes, 3 themes, CSS variables, theme toggle)",
-      styling: "Styling Architecture (Tailwind CSS 4, design system, responsive, animations)",
+      layoutSystem: "Live camera monitoring across every gate and common area",
+      formBuilder: "Digital complaint & maintenance request forms",
+      realtimeDashboard: "Real-time society dashboard with instant alerts",
+      enterpriseAuth: "Role-based access for residents, guards, and management",
+      uiComponents: "Verified resident directory and profiles",
+      stateManagement: "Automatic visitor and vehicle logging",
+      testingSuite: "AI-verified facial recognition entry",
+      performance: "Fast and reliable, even on society Wi-Fi",
+      storybook: "Transparent digital voting and elections",
+      socketTesting: "Instant notifications for security events",
+      apiNetworking: "Integrates with your existing CCTV and gate hardware",
+      logging: "Full audit trail for every entry and exit",
+      theming: "Light and dark themes for day and night shifts",
+      styling: "Available in English, Urdu, and Arabic",
     },
   },
-  build: {
-    title: "Built with",
-    stack: [
-      { name: "Next.js" },
-      { name: "Tailwind CSS" },
-      { name: "Shadcn Ui" },
-      { name: "Storybook" },
-    ],
-  },
+
   pricing: {
-    title: "Simple, transparent pricing",
-    subtitle: "Flexible plans for SaaS, dashboards, and web apps.",
+    eyebrow: "Pricing",
+    title: "Simple pricing for societies of any size",
+    subtitle: "Pick a plan based on how many units and residents you manage.",
     period: "/month",
     getStarted: "Get Started",
     contactSales: "Contact Sales",
@@ -109,39 +140,61 @@ const home = {
     plans: {
       basic: {
         name: "Starter",
-        description: "All core features for solo developers",
-        price: "50",
-        features: ["1 project", "All integrations", "Authentication & i18n", "Basic support"],
+        description: "For small societies just getting started with digital management",
+        price: "9",
+        features: ["Up to 50 units", "Resident directory", "Complaint management", "Email support"],
       },
       pro: {
-        name: "Pro",
-        description: "Advanced features for growing teams",
-        price: "100",
+        name: "Growth",
+        description: "For growing societies that need surveillance and voting",
+        price: "29",
         features: [
-          "5 projects",
-          "Socket.io & real-time",
+          "Up to 300 units",
+          "AI facial recognition",
+          "Vehicle access control",
+          "Digital voting & elections",
           "Priority support",
-          "Custom layouts",
-          "Advanced analytics",
-          "API access",
+          "Real-time alerts",
         ],
       },
       team: {
         name: "Enterprise",
-        description: "Full power for organizations",
-        price: "200",
+        description: "For large gated communities and multi-block societies",
+        price: "79",
         features: [
-          "Unlimited projects",
-          "SSO & custom integrations",
-          "24/7 support",
-          "White-labeling",
-          "Dedicated onboarding",
-          "API access",
-          "SSO authentication",
+          "Unlimited units",
+          "Multi-gate surveillance network",
           "Custom integrations",
+          "Dedicated onboarding",
+          "24/7 support",
+          "Advanced analytics",
+          "SSO authentication",
+          "White-labeling",
         ],
       },
     },
+  },
+
+  footer: {
+    brand: "Smart Housing",
+    tagline:
+      "A modern SaaS platform empowering housing societies to work smarter, faster, and better with technology.",
+    servicesTitle: "Services",
+    services: [
+      "AI Surveillance",
+      "Vehicle Access",
+      "Digital Voting",
+      "Complaint Portal",
+      "Resident App",
+    ],
+    companyTitle: "Company",
+    company: ["About Us", "Blog", "Careers", "Terms of Service", "Privacy Policy"],
+    newsletterTitle: "Stay Connected",
+    newsletterDescription: "Get product updates and security news in your inbox.",
+    newsletterPlaceholder: "Enter your email",
+    newsletterButton: "Subscribe",
+    contactEmail: "hello@smarthousing.com",
+    copyright: "© 2026 Smart Housing. All rights reserved.",
   },
 } as const;
 

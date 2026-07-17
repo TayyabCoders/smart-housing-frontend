@@ -2,7 +2,7 @@ import type React from "react";
 import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
-import { urduFont, arabicFont } from "@/lib/fonts/fonts";
+import { urduFont, arabicFont, headingFont, landingBodyFont } from "@/lib/fonts/fonts";
 import { Analytics } from "@vercel/analytics/next";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
@@ -39,8 +39,8 @@ export default async function RootLayout({ children, params }: Props) {
   const rtlFont = locale === "ar" ? arabicFont : urduFont;
 
   const bodyClasses = isRtl
-    ? `${locale === "ar" ? "font-arabic" : "font-urdu"} ${rtlFont.variable} ${GeistSans.variable} ${GeistMono.variable} antialiased`
-    : `font-sans ${GeistSans.variable} ${GeistMono.variable} ${urduFont.variable} ${arabicFont.variable} antialiased`;
+    ? `${locale === "ar" ? "font-arabic" : "font-urdu"} ${rtlFont.variable} ${GeistSans.variable} ${GeistMono.variable} ${headingFont.variable} ${landingBodyFont.variable} antialiased`
+    : `font-sans ${GeistSans.variable} ${GeistMono.variable} ${urduFont.variable} ${arabicFont.variable} ${headingFont.variable} ${landingBodyFont.variable} antialiased`;
 
   return (
     <html lang={locale} suppressHydrationWarning dir={isRtl ? "rtl" : "ltr"}>

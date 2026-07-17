@@ -16,8 +16,8 @@ const auth = {
 
   // Signup page
   signup: {
-    title: "Create an account",
-    subtitle: "Sign up to get started",
+    title: "Create your account",
+    subtitle: "Join your society's smart management platform",
     nameLabel: "Full Name",
     emailLabel: "Email",
     passwordLabel: "Password",
