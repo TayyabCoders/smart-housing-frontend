@@ -14,7 +14,7 @@ export interface ActivityLogEntry {
   time: string;
 }
 
-export type VotingTabId = "vote" | "results" | "rules";
+export type VotingTabId = "vote" | "results" | "rules" | "manage";
 
 export interface ToastState {
   show: boolean;

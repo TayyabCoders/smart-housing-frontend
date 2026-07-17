@@ -7,6 +7,9 @@ let socket: Socket | null = null;
 
 export function getSocketIO(): Socket {
   if (!socket) {
+    // Get token from localStorage
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    
     socket = io(socketConfig.socketIOUrl, {
       autoConnect: socketConfig.autoConnect,
       withCredentials: true,
@@ -16,13 +19,10 @@ export function getSocketIO(): Socket {
       reconnectionDelayMax: socketConfig.reconnectionDelayMax,
       randomizationFactor: socketConfig.randomizationFactor,
       timeout: socketConfig.timeout,
-      // pingTimeout and pingInterval are server-side configurations
-      // pingTimeout: socketConfig.pingTimeout,
-      // pingInterval: socketConfig.pingInterval,
       transports: socketConfig.transports,
       upgrade: socketConfig.upgrade,
       auth: {
-        token: process.env.NEXT_PUBLIC_SOCKET_TOKEN || "anonymous",
+        token: token || process.env.NEXT_PUBLIC_SOCKET_TOKEN || "anonymous",
       },
       extraHeaders: {
         "X-Client-Version": "1.0.0",
@@ -32,8 +32,6 @@ export function getSocketIO(): Socket {
       rememberUpgrade: true,
       closeOnBeforeunload: true,
       autoUnref: false,
-      // perMessageDeflate is for WebSocket, not Socket.IO
-      // perMessageDeflate: socketConfig.perMessageDeflate,
     });
 
     // Event listeners with proper logging

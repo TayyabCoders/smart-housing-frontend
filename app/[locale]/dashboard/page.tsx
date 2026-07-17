@@ -7,6 +7,7 @@ import { DashboardContent } from "./components/dashboard-content";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import { fetchComplaints } from "@/redux/slices/complaint-slice";
 import { fetchDashboardMetrics } from "@/redux/slices/dashboard-slice";
+import { RoleGuard } from "@/lib/auth/role-guard";
 
 export default function DashboardPage() {
   const { setLayoutType } = useLayout();
@@ -38,8 +39,10 @@ export default function DashboardPage() {
   };
 
   return (
-    <DynamicLayout>
-      <DashboardContent data={{ complaints, metrics: metrics || undefined, complaintCounts }} isLoading={isLoading} onRefresh={handleRefresh} />
-    </DynamicLayout>
+    <RoleGuard allowedRoles={["admin"]}>
+      <DynamicLayout>
+        <DashboardContent data={{ complaints, metrics: metrics || undefined, complaintCounts }} isLoading={isLoading} onRefresh={handleRefresh} />
+      </DynamicLayout>
+    </RoleGuard>
   );
 }

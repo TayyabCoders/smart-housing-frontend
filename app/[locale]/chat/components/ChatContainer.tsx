@@ -5,11 +5,16 @@ import { ChatSidebar } from "./ChatSidebar";
 import { ChatList } from "./ChatList";
 import { ChatWindow } from "./ChatWindow";
 import type { ChatFilterId } from "../types";
+import { useAppSelector } from "@/redux/store";
+import type { UserModuleUser } from "@/app/[locale]/users/types/user";
 
 export function ChatContainer() {
   // Mobile view state management
-  const [activeChatId, setActiveChatId] = useState<number | null>(null);
+  const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<ChatFilterId>("all");
+  
+  const { users } = useAppSelector((state) => state.users);
+  const selectedUser = activeChatId !== null ? users.find(u => u.id === activeChatId) : null;
 
   return (
     <div className="flex h-[calc(100vh-140px)] w-full overflow-hidden rounded-2xl bg-background shadow-lg border border-border/40">
@@ -19,7 +24,12 @@ export function ChatContainer() {
           activeChatId !== null ? "hidden md:flex" : "flex"
         }`}
       >
-        <ChatList activeChatId={activeChatId} onSelectChat={setActiveChatId} activeFilter={activeFilter} onSelectFilter={setActiveFilter} />
+        <ChatList 
+          activeChatId={activeChatId} 
+          onSelectChat={setActiveChatId} 
+          activeFilter={activeFilter} 
+          onSelectFilter={setActiveFilter}
+        />
       </div>
 
       {/* 3. Main Chat Window */}
@@ -28,7 +38,11 @@ export function ChatContainer() {
           activeChatId === null ? "hidden md:flex" : "flex"
         }`}
       >
-        <ChatWindow activeChatId={activeChatId} onBack={() => setActiveChatId(null)} />
+        <ChatWindow 
+          activeChatId={activeChatId} 
+          onBack={() => setActiveChatId(null)}
+          selectedUser={selectedUser ? { username: selectedUser.username, id: selectedUser.id } : null}
+        />
       </div>
     </div>
   );

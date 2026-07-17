@@ -75,8 +75,8 @@ const dashboard = {
       description: "توزيع حالة الشكاوى",
     },
     performanceMetrics: {
-      title: "مقاييس الأداء",
-      description: "المؤشرات الأساسية للأداء",
+      title: "مقاييس التصويت",
+      description: "نتائج تصويت المرشح",
     },
     conversionFunnel: {
       title: "قمع التحويل",

@@ -11,6 +11,8 @@ import complaintsReducer from "./slices/complaint-slice";
 import votingReducer from "./slices/voting-slice";
 import dashboardReducer from "./slices/dashboard-slice";
 import chatbotReducer from "./slices/chatbot-slice";
+import chatReducer from "./slices/chat-slice";
+import profileReducer from "./slices/profile-slice";
 import createWebStorage from "redux-persist/lib/storage/createWebStorage";
 
 // Create a noop storage for SSR
@@ -40,6 +42,8 @@ const rootReducer = combineReducers({
   complaints: complaintsReducer,
   dashboard: dashboardReducer,
   chatbot: chatbotReducer,
+  chat: chatReducer,
+  profile: profileReducer,
 });
 
 const persistConfig = {

@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { CheckCircle2, BadgeAlert } from "lucide-react";
+import { CheckCircle2, BadgeAlert, Clock, CalendarX } from "lucide-react";
 import { cn } from "@/lib/tailwindUtils/utils";
 import { useTranslations } from "next-intl";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
+import { useAuth } from "@/hooks/use-auth";
 import {
   fetchCandidates,
   submitVote,
@@ -13,16 +14,25 @@ import {
   fetchElectionStatus,
 } from "@/redux/slices/voting-slice";
 
-// Types
 import { Candidate, ActivityLogEntry, VotingTabId, ToastState, ModalState } from "../types";
 
-// Components
 import { VotingHeader } from "./VotingHeader";
 import { VotingStats } from "./VotingStats";
 import { VotingTabs } from "./VotingTabs";
 import { VoteTab } from "./VoteTab";
 import { ResultsTab } from "./ResultsTab";
 import { RulesTab } from "./RulesTab";
+import ManageTab from "./ManageTab";
+
+function getElectionDateStatus(electionDateStr: string): "upcoming" | "active" | "closed" {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const electionDate = new Date(electionDateStr);
+  electionDate.setHours(0, 0, 0, 0);
+  if (electionDate.getTime() > today.getTime()) return "upcoming";
+  if (electionDate.getTime() === today.getTime()) return "active";
+  return "closed";
+}
 
 export default function VotingContainer() {
   const tVote = useTranslations("voting.voteTab");
@@ -31,6 +41,9 @@ export default function VotingContainer() {
   const tCommon = useTranslations("voting.common");
 
   const dispatch = useAppDispatch();
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
+
   const {
     candidates,
     results,
@@ -47,7 +60,6 @@ export default function VotingContainer() {
   const [activeTab, setActiveTab] = useState<VotingTabId>("vote");
   const [selectedCandidate, setSelectedCandidate] = useState<string | null>(null);
 
-  // Form State
   const [voterName, setVoterName] = useState("");
   const [voterNic, setVoterNic] = useState("");
   const [voterBlock, setVoterBlock] = useState("");
@@ -55,22 +67,18 @@ export default function VotingContainer() {
   const [nicError, setNicError] = useState(false);
   const [nameError, setNameError] = useState(false);
 
-  // System State
   const [votes, setVotes] = useState<Record<string, number>>({});
   const [usedNICs, setUsedNICs] = useState<string[]>([]);
   const [localActivityLog, setLocalActivityLog] = useState<ActivityLogEntry[]>([]);
   const [todayDate, setTodayDate] = useState("");
 
-  // UI State
   const [toast, setToast] = useState<ToastState>({ show: false, msg: "", type: "success" });
   const [modal, setModal] = useState<ModalState>({ show: false, title: "", text: "", icon: "" });
 
   useEffect(() => {
-    // Fetch candidates and election status from API
     dispatch(fetchCandidates());
     dispatch(fetchElectionStatus());
 
-    // Client-side initialization
     setTodayDate(
       new Date().toLocaleDateString("en-PK", { year: "numeric", month: "long", day: "numeric" })
     );
@@ -88,7 +96,6 @@ export default function VotingContainer() {
     }
   }, [dispatch]);
 
-  // Fetch results when switching to results tab
   useEffect(() => {
     if (activeTab === "results") {
       dispatch(fetchResults());
@@ -96,7 +103,7 @@ export default function VotingContainer() {
     }
   }, [activeTab, dispatch]);
 
-  // Derived Stats
+  // Derived stats
   const totalVotes = Object.values(votes).reduce((a, b) => a + b, 0);
   const sortedCandidates = [...candidates].sort((a, b) => (votes[b.id] || 0) - (votes[a.id] || 0));
   let leader = null;
@@ -106,19 +113,22 @@ export default function VotingContainer() {
     leaderPct = Math.round(((votes[leader.id] || 0) / totalVotes) * 100);
   }
 
-  // Toast Helper
+  const dateStatus = electionStatus
+    ? getElectionDateStatus(electionStatus.election_date)
+    : null;
+
+  const votingOpen = dateStatus === "active" && electionStatus?.is_active;
+
   const showToast = (msg: string, type: "success" | "error" = "success") => {
     setToast({ show: true, msg, type });
     setTimeout(() => setToast((prev) => ({ ...prev, show: false })), 3500);
   };
 
-  // Modal Helper
   const showModal = (title: string, text: React.ReactNode, icon: string) => {
     setModal({ show: true, title, text, icon });
   };
   const closeModal = () => setModal((prev) => ({ ...prev, show: false }));
 
-  // Format NIC input
   const handleNicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let v = e.target.value.replace(/\D/g, "");
     if (v.length > 5 && v.length <= 12) v = v.slice(0, 5) + "-" + v.slice(5);
@@ -158,6 +168,18 @@ export default function VotingContainer() {
       return;
     }
 
+    if (usedNICs.includes(nic)) {
+      showModal(
+        "Already Voted",
+        <div className="flex flex-col items-center gap-2 text-center">
+          <p>Your CNIC <span className="font-bold">{nic}</span> has already been used to vote in this election.</p>
+          <p className="text-xs text-muted-foreground">Each CNIC can only cast one vote per election.</p>
+        </div>,
+        "🚫"
+      );
+      return;
+    }
+
     const c = candidates.find((x: Candidate) => x.id === selectedCandidate)!;
     if (!c) {
       showToast("Candidate not found", "error");
@@ -176,7 +198,6 @@ export default function VotingContainer() {
       ).unwrap();
 
       if (result.success) {
-        // Update local state for display purposes
         const newVotes = { ...votes, [selectedCandidate]: (votes[selectedCandidate] || 0) + 1 };
         const newNICs = [...usedNICs, nic];
 
@@ -202,12 +223,10 @@ export default function VotingContainer() {
           console.error("Failed to save to localStorage", e);
         }
 
-        // Fetch updated data from backend
         dispatch(fetchResults());
         dispatch(fetchActivityLog());
         dispatch(fetchElectionStatus());
 
-        // Reset Form
         setSelectedCandidate(null);
         setVoterName("");
         setVoterNic("");
@@ -230,21 +249,26 @@ export default function VotingContainer() {
         showToast(result.message || "Failed to submit vote", "error");
       }
     } catch (error: any) {
-      // Extract specific error message from backend response
-      let errorMessage = "Failed to submit vote";
-      if (error.response?.data?.error?.message) {
-        try {
-          // Parse the stringified JSON message
-          const parsedMessage = JSON.parse(error.response.data.error.message);
-          errorMessage = parsedMessage.message || errorMessage;
-        } catch {
-          // If parsing fails, use the raw message
-          errorMessage = error.response.data.error.message;
-        }
-      } else if (error.message) {
-        errorMessage = error.message;
+      // error is the rejectWithValue payload: { error: "ALREADY_VOTED", message: "..." }
+      const errorCode = error?.error as string | undefined;
+      const errorMessage = error?.message || "Failed to submit vote";
+
+      if (errorCode === "ALREADY_VOTED") {
+        showModal(
+          "Already Voted",
+          <div className="flex flex-col items-center gap-2 text-center">
+            <p>{errorMessage}</p>
+            <p className="text-xs text-muted-foreground">Each CNIC can only cast one vote per election.</p>
+          </div>,
+          "🚫"
+        );
+      } else if (errorCode === "ELECTION_NOT_STARTED") {
+        showModal("Voting Not Open", <p>{errorMessage}</p>, "⏳");
+      } else if (errorCode === "ELECTION_ENDED") {
+        showModal("Voting Closed", <p>{errorMessage}</p>, "🔒");
+      } else {
+        showToast(errorMessage, "error");
       }
-      showToast(errorMessage, "error");
     }
   };
 
@@ -258,28 +282,66 @@ export default function VotingContainer() {
 
       <div className="relative z-10 space-y-6">
         <VotingHeader electionStatus={electionStatus} />
-
         <VotingStats electionStatus={electionStatus} />
+        <VotingTabs activeTab={activeTab} setActiveTab={setActiveTab} isAdmin={isAdmin} />
 
-        <VotingTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-
+        {/* Vote Tab */}
         {activeTab === "vote" && (
-          <VoteTab
-            candidates={candidates}
-            selectedCandidate={selectedCandidate}
-            setSelectedCandidate={setSelectedCandidate}
-            voterName={voterName}
-            setVoterName={setVoterName}
-            voterNic={voterNic}
-            handleNicChange={handleNicChange}
-            voterBlock={voterBlock}
-            setVoterBlock={setVoterBlock}
-            voterPhone={voterPhone}
-            setVoterPhone={setVoterPhone}
-            nameError={nameError}
-            nicError={nicError}
-            onSubmit={handleSubmitVote}
-          />
+          <>
+            {/* Voting window banners */}
+            {electionStatus && dateStatus === "upcoming" && (
+              <div className="flex items-center gap-3 bg-blue-500/10 border border-blue-500/20 text-blue-600 rounded-xl px-5 py-4">
+                <Clock className="w-5 h-5 flex-shrink-0" />
+                <div>
+                  <p className="font-semibold text-sm">Voting Not Open Yet</p>
+                  <p className="text-xs mt-0.5">
+                    Voting opens on{" "}
+                    {new Date(electionStatus.election_date).toLocaleDateString("en-PK", {
+                      weekday: "long", year: "numeric", month: "long", day: "numeric",
+                    })}
+                  </p>
+                </div>
+              </div>
+            )}
+            {electionStatus && dateStatus === "closed" && (
+              <div className="flex items-center gap-3 bg-zinc-500/10 border border-zinc-500/20 text-zinc-500 rounded-xl px-5 py-4">
+                <CalendarX className="w-5 h-5 flex-shrink-0" />
+                <div>
+                  <p className="font-semibold text-sm">Voting Period Ended</p>
+                  <p className="text-xs mt-0.5">
+                    The voting window for this election has closed. Results are final.
+                  </p>
+                </div>
+              </div>
+            )}
+            {electionStatus && !electionStatus.is_active && (
+              <div className="flex items-center gap-3 bg-amber-500/10 border border-amber-500/20 text-amber-600 rounded-xl px-5 py-4">
+                <BadgeAlert className="w-5 h-5 flex-shrink-0" />
+                <div>
+                  <p className="font-semibold text-sm">Election Inactive</p>
+                  <p className="text-xs mt-0.5">This election has been deactivated by the admin.</p>
+                </div>
+              </div>
+            )}
+            <VoteTab
+              candidates={candidates}
+              selectedCandidate={selectedCandidate}
+              setSelectedCandidate={setSelectedCandidate}
+              voterName={voterName}
+              setVoterName={setVoterName}
+              voterNic={voterNic}
+              handleNicChange={handleNicChange}
+              voterBlock={voterBlock}
+              setVoterBlock={setVoterBlock}
+              voterPhone={voterPhone}
+              setVoterPhone={setVoterPhone}
+              nameError={nameError}
+              nicError={nicError}
+              onSubmit={handleSubmitVote}
+              votingDisabled={!votingOpen}
+              submitting={submitting}
+            />
+          </>
         )}
 
         {activeTab === "results" && (
@@ -287,6 +349,8 @@ export default function VotingContainer() {
         )}
 
         {activeTab === "rules" && <RulesTab />}
+
+        {activeTab === "manage" && isAdmin && <ManageTab />}
       </div>
 
       {/* Footer */}

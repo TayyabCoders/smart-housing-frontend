@@ -19,6 +19,8 @@ interface VoteTabProps {
   nameError: boolean;
   nicError: boolean;
   onSubmit: () => void;
+  votingDisabled?: boolean;
+  submitting?: boolean;
 }
 
 export const VoteTab: React.FC<VoteTabProps> = ({
@@ -36,6 +38,8 @@ export const VoteTab: React.FC<VoteTabProps> = ({
   nameError,
   nicError,
   onSubmit,
+  votingDisabled = false,
+  submitting = false,
 }) => {
   const t = useTranslations("voting.voteTab");
 
@@ -171,9 +175,20 @@ export const VoteTab: React.FC<VoteTabProps> = ({
 
         <button
           onClick={onSubmit}
-          className="w-full mt-8 bg-primary hover:bg-primary/90 text-primary-foreground py-4 rounded-xl font-bold uppercase tracking-widest text-sm transition-all hover:shadow-lg hover:shadow-primary/20 flex items-center justify-center gap-2"
+          disabled={votingDisabled || submitting}
+          className="w-full mt-8 bg-primary hover:bg-primary/90 text-primary-foreground py-4 rounded-xl font-bold uppercase tracking-widest text-sm transition-all hover:shadow-lg hover:shadow-primary/20 flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none"
         >
-          <CheckCircle2 className="w-5 h-5" /> {t("submitBtn")}
+          {submitting ? (
+            <>
+              <svg className="w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+              </svg>
+              Submitting...
+            </>
+          ) : (
+            <><CheckCircle2 className="w-5 h-5" /> {t("submitBtn")}</>
+          )}
         </button>
       </div>
     </div>

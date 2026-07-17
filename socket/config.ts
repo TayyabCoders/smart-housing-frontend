@@ -20,9 +20,9 @@ export interface SocketConfig {
 }
 
 export const socketConfig: SocketConfig = {
-  mode: (process.env.NEXT_PUBLIC_SOCKET_MODE as SocketMode) || "socketio",
-  socketIOUrl: process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:4000",
-  webSocketUrl: process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:4000",
+  mode: (process.env.NEXT_PUBLIC_SOCKET_MODE as SocketMode) || "websocket",
+  socketIOUrl: process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:8000",
+  webSocketUrl: process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8000",
   autoConnect: true,
   reconnection: true,
   reconnectionAttempts: 5,
