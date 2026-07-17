@@ -40,9 +40,9 @@ const layout = {
           { href: "/surveillance/face", title: "التعرف على الوجوه" },
           { href: "/surveillance/alerts", title: "تنبيهات الأمان" },
           { href: "/surveillance/logs", title: "سجلات الدخول" },
-        ]
+        ],
       },
-      { href: "/chatbot", title: "روبوت الدردشة" }
+      { href: "/chatbot", title: "Ask OTTO" },
     ],
   },
 

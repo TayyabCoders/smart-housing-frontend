@@ -4,7 +4,7 @@ const chatbot = {
     newConversation: "New Conversation",
   },
   chat: {
-    placeholder: "Send a message... (type / for docs & skills)",
+    placeholder: "Send a message...",
     reasoningSteps: "{count} reasoning steps",
   },
   models: {

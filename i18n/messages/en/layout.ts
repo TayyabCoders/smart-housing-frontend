@@ -64,9 +64,9 @@ const layout = {
           { href: "/surveillance/face", title: "Facial Recognition" },
           { href: "/surveillance/alerts", title: "Security Alerts" },
           { href: "/surveillance/logs", title: "Entry Logs" },
-        ]
+        ],
       },
-      { href: "/chatbot", title: "Chatbot" }
+      { href: "/chatbot", title: "Ask OTTO" },
     ],
   },
 

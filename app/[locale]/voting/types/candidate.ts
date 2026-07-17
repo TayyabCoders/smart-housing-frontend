@@ -53,6 +53,47 @@ export type ElectionStatus = {
   top_candidate: number | null;
 };
 
+// Admin types
+export type ElectionListItem = {
+  id: string;
+  title: string;
+  society_name: string;
+  society_location: string;
+  election_date: string;
+  is_active: boolean;
+  total_eligible_voters: number;
+  total_candidates: number;
+  total_votes: number;
+  status: "upcoming" | "active" | "closed";
+  created_at: string;
+};
+
+export type ElectionCreateRequest = {
+  title: string;
+  society_name: string;
+  society_location: string;
+  election_date: string;
+  total_eligible_voters: number;
+};
+
+export type ElectionUpdateRequest = {
+  title?: string;
+  society_name?: string;
+  society_location?: string;
+  election_date?: string;
+  is_active?: boolean;
+  total_eligible_voters?: number;
+};
+
+export type CandidateCreateRequest = {
+  election_id: string;
+  name: string;
+  role: string;
+  party: string;
+  emoji: string;
+  p_class: string;
+};
+
 // Generic API response for Voting module
 export type VotingModuleApiResponse<T> = {
   success: boolean;

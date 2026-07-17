@@ -2,6 +2,7 @@
 import { useEffect, useRef, useMemo } from "react";
 import { useLayoutActions } from "@/contexts/layout-context";
 import { DynamicLayout } from "@/components/layout/dynamic-layout";
+import { RoleGuard } from "@/lib/auth/role-guard";
 import PageHead from "@/components/shared/page-head";
 import UserTable from "./components/user-table";
 import { DataTableSkeleton } from "@/components/shared/data-table-skeleton";
@@ -75,6 +76,24 @@ export default function UserPage() {
   // Show skeleton only on initial load
   if (isLoading && users.length === 0 && !error) {
     return (
+      <RoleGuard allowedRoles={["admin"]}>
+        <DynamicLayout>
+          <div className="pt-4 sm:pt-6 md:pt-12">
+            <PageHead title="User Management | Next Starter" />
+            <Breadcrumbs
+              items={[
+                { title: "Dashboard", link: "/dashboard" },
+                { title: "Users", link: "/users" },
+              ]}
+            />
+            <DataTableSkeleton columnCount={11} />
+          </div>
+        </DynamicLayout>
+      </RoleGuard>
+    );
+  }
+  return (
+    <RoleGuard allowedRoles={["admin"]}>
       <DynamicLayout>
         <div className="pt-4 sm:pt-6 md:pt-12">
           <PageHead title="User Management | Next Starter" />
@@ -84,28 +103,14 @@ export default function UserPage() {
               { title: "Users", link: "/users" },
             ]}
           />
-          <DataTableSkeleton columnCount={11} />
+          <UserTable
+            users={users}
+            page={pagination.page}
+            totalUsers={pagination.total}
+            pageCount={pagination.pages}
+          />
         </div>
       </DynamicLayout>
-    );
-  }
-  return (
-    <DynamicLayout>
-      <div className="pt-4 sm:pt-6 md:pt-12">
-        <PageHead title="User Management | Next Starter" />
-        <Breadcrumbs
-          items={[
-            { title: "Dashboard", link: "/dashboard" },
-            { title: "Users", link: "/users" },
-          ]}
-        />
-        <UserTable
-          users={users}
-          page={pagination.page}
-          totalUsers={pagination.total}
-          pageCount={pagination.pages}
-        />
-      </div>
-    </DynamicLayout>
+    </RoleGuard>
   );
 }

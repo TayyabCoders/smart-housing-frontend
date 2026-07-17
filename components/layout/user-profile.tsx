@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import { logger } from "@/logger/logger";
 import { useAuth } from "@/hooks/use-auth";
@@ -45,6 +45,7 @@ export function UserProfile({ className }: UserProfileProps) {
   const t = useTranslations("layout.profile");
   const router = useRouter();
 
+  const locale = useLocale();
   const { isAuthenticated, user } = useAuth();
 
   // Local fallback user state: use auth user if available, otherwise try cookies (now via utility)
@@ -95,7 +96,9 @@ export function UserProfile({ className }: UserProfileProps) {
     }
   };
 
-  const handleProfileClick = () => router.push("/dashboard/profile");
+  const handleProfileClick = () => router.push(`/${locale}/profile`);
+  const handleSettingsClick = () => router.push("/dashboard/settings");
+  const handleHelpClick = () => router.push("/help");
 
   return (
     <div className={cn("inline-flex items-center", className)}>
