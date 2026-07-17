@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { UserIcon, SettingsIcon, HelpIcon, LogoutIcon } from "@/lib/icons/icons";
+import { UserIcon, LogoutIcon } from "@/lib/icons/icons";
 
 interface UserProfileProps {
   className?: string;
@@ -175,22 +175,6 @@ export function UserProfile({ className }: UserProfileProps) {
           >
             <UserIcon className="mr-3 h-4 w-4 text-muted-foreground" />
             <span className="font-medium">{t("profile")}</span>
-          </DropdownMenuItem>
-
-          <DropdownMenuItem
-            onClick={handleSettingsClick}
-            className="cursor-pointer rounded-md mx-1 py-2.5 px-3 transition-colors hover:bg-accent/50"
-          >
-            <SettingsIcon className="mr-3 h-4 w-4 text-muted-foreground" />
-            <span className="font-medium">{t("settings")}</span>
-          </DropdownMenuItem>
-
-          <DropdownMenuItem
-            onClick={handleHelpClick}
-            className="cursor-pointer rounded-md mx-1 py-2.5 px-3 transition-colors hover:bg-accent/50"
-          >
-            <HelpIcon className="mr-3 h-4 w-4 text-muted-foreground" />
-            <span className="font-medium">{t("help")}</span>
           </DropdownMenuItem>
 
           <DropdownMenuSeparator className="my-2" />
