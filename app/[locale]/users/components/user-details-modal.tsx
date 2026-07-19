@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { BaseGrid } from "@/components/shared/base-grid";
 import { UserModuleUser } from "@/app/[locale]/users/types/user";
-import { User, Mail, Phone, Calendar, MapPin, Hash } from "lucide-react";
+import { User, Mail, Phone, Calendar, MapPin } from "lucide-react";
 
 interface UserDetailsModalProps {
   user: UserModuleUser;
@@ -30,11 +30,11 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({ user, isOpen
             {/* Status Badge */}
             <div className="flex items-center justify-between pb-4 border-b">
               <div>
-                <h3 className="text-2xl font-semibold">{user.name}</h3>
+                <h3 className="text-2xl font-semibold">{user.username}</h3>
                 <p className="text-sm text-muted-foreground">{user.email}</p>
               </div>
-              <Badge variant={user.isActive ? "default" : "destructive"}>
-                {user.isActive ? "Active" : "Inactive"}
+              <Badge variant={user.is_active ? "default" : "destructive"}>
+                {user.is_active ? "Active" : "Inactive"}
               </Badge>
             </div>
 
@@ -55,7 +55,7 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({ user, isOpen
                   <Phone className="h-4 w-4 mt-0.5 text-muted-foreground" />
                   <div className="flex-1 min-w-0">
                     <Label className="text-xs text-muted-foreground">Phone</Label>
-                    <p className="text-sm font-medium">{user.phone || "Not provided"}</p>
+                    <p className="text-sm font-medium">{user.phone_number || "Not provided"}</p>
                   </div>
                 </div>
               </BaseGrid>
@@ -77,7 +77,7 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({ user, isOpen
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs text-muted-foreground">User ID</Label>
-                  <p className="text-xs font-mono text-muted-foreground break-all">{user._id}</p>
+                  <p className="text-xs font-mono text-muted-foreground break-all">{user.id}</p>
                 </div>
               </BaseGrid>
             </div>
@@ -104,7 +104,7 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({ user, isOpen
                   </div>
                   <div className="space-y-1">
                     <Label className="text-xs text-muted-foreground">Zip Code</Label>
-                    <p className="text-sm font-medium">{user.zipCode || "Not provided"}</p>
+                    <p className="text-sm font-medium">{user.zip_code || "Not provided"}</p>
                   </div>
                 </BaseGrid>
               </div>
@@ -120,8 +120,8 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({ user, isOpen
                 <div className="space-y-1">
                   <Label className="text-xs text-muted-foreground">Created At</Label>
                   <p className="text-sm font-medium">
-                    {user.createdAt
-                      ? new Date(user.createdAt).toLocaleString("en-US", {
+                    {user.created_at
+                      ? new Date(user.created_at).toLocaleString("en-US", {
                           dateStyle: "medium",
                           timeStyle: "short",
                         })
@@ -131,8 +131,8 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({ user, isOpen
                 <div className="space-y-1">
                   <Label className="text-xs text-muted-foreground">Last Updated</Label>
                   <p className="text-sm font-medium">
-                    {user.updatedAt
-                      ? new Date(user.updatedAt).toLocaleString("en-US", {
+                    {user.updated_at
+                      ? new Date(user.updated_at).toLocaleString("en-US", {
                           dateStyle: "medium",
                           timeStyle: "short",
                         })
