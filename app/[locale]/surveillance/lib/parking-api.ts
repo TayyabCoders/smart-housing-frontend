@@ -2,7 +2,9 @@ const PARKING_API = (
   process.env.NEXT_PUBLIC_PARKING_API_URL ||
   process.env.NEXT_PUBLIC_BASE_URL ||
   ""
-).replace(/\/$/, "");
+)
+  .replace(/\/$/, "")
+  .replace(/\/api\/v1$/, "");
 
 export interface DetectResult {
   detected: boolean;
