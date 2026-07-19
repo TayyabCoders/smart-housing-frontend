@@ -36,7 +36,7 @@ const UserCreateForm = ({ modalClose, initialData, isUpdate }: UserFormProps) =>
       if (isUpdate && initialData) {
         await dispatch(
           updateUserAction({
-            id: initialData._id,
+            id: initialData.id,
             userData: values,
           })
         ).unwrap();
