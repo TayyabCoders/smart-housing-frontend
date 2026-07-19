@@ -26,13 +26,18 @@ const iconColors = [
   "bg-teal-500",
 ];
 
-export function ChatList({ activeChatId, onSelectChat, activeFilter, onSelectFilter }: ChatListProps) {
+export function ChatList({
+  activeChatId,
+  onSelectChat,
+  activeFilter,
+  onSelectFilter,
+}: ChatListProps) {
   const t = useTranslations("chat.list");
   const dispatch = useAppDispatch();
   const { users, loading } = useAppSelector((state) => state.users);
 
   useEffect(() => {
-    dispatch(fetchUsers());
+    dispatch(fetchUsers({}));
   }, [dispatch]);
 
   return (
@@ -91,7 +96,12 @@ export function ChatList({ activeChatId, onSelectChat, activeFilter, onSelectFil
 
                 {/* Icon / Avatar */}
                 <div className="relative">
-                  <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center text-white font-bold shadow-sm", iconColor)}>
+                  <div
+                    className={cn(
+                      "h-12 w-12 rounded-2xl flex items-center justify-center text-white font-bold shadow-sm",
+                      iconColor
+                    )}
+                  >
                     {user.username.charAt(0).toUpperCase()}
                   </div>
                   {user.is_active && (
@@ -102,7 +112,12 @@ export function ChatList({ activeChatId, onSelectChat, activeFilter, onSelectFil
                 {/* Content */}
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-start mb-1">
-                    <h3 className={cn("font-semibold text-sm truncate pr-2", isActive ? "text-primary" : "")}>
+                    <h3
+                      className={cn(
+                        "font-semibold text-sm truncate pr-2",
+                        isActive ? "text-primary" : ""
+                      )}
+                    >
                       {user.username}
                     </h3>
                     <span className="flex-shrink-0 h-2 w-2 rounded-full bg-muted mt-1.5"></span>
