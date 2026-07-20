@@ -22,6 +22,7 @@ import {
   ChatIcon,
   VoteIcon,
   ChatbotIcon,
+  AnnouncementIcon,
 } from "@/lib/icons/icons";
 import { Button } from "@/components/ui/button/button";
 import { cn } from "@/lib/tailwindUtils/utils";
@@ -64,6 +65,7 @@ export function Sidebar({ className }: SidebarProps) {
     if (href === "/chat") return ChatIcon;
     if (href === "/voting") return VoteIcon;
     if (href === "/complaints") return FileTextIcon;
+    if (href === "/announcements") return AnnouncementIcon;
     if (href === "/surveillance") return CameraIcon;
     if (href === "/chatbot") return ChatbotIcon;
 

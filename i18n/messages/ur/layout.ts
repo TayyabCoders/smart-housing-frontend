@@ -30,6 +30,7 @@ const layout = {
       { href: "/chat", title: "چیٹ" },
       { href: "/voting", title: "ووٹنگ سسٹم" },
       { href: "/complaints", title: "شکایات سسٹم" },
+      { href: "/announcements", title: "اعلانات" },
       {
         href: "/surveillance",
         title: "AI سريلينس",

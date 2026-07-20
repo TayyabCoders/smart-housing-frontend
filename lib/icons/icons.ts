@@ -82,6 +82,7 @@ import {
   Lock,
   MessageCircle,
   Bot,
+  Megaphone,
   type LucideIcon,
   type LucideProps,
 } from "lucide-react";
@@ -164,6 +165,7 @@ export {
   Lock,
   MessageCircle,
   Bot,
+  Megaphone,
   type LucideIcon,
   type LucideProps,
 };
@@ -234,6 +236,7 @@ export const UserCheckIcon = UserCheck;
 export const ChatIcon = MessageCircle;
 export const VoteIcon = Vote;
 export const ChatbotIcon = Bot;
+export const AnnouncementIcon = Megaphone;
 
 // Icon size presets for consistency
 export const ICON_SIZES = {
