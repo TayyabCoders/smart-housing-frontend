@@ -62,9 +62,9 @@ export default function LoginPage() {
       <div className="flex justify-center mb-2">
         <Image
           src="/logo.png"
-          alt="Vital-One Logo"
-          width={150}
-          height={150}
+          alt="Residora Logo"
+          width={280}
+          height={187}
           className="object-contain"
           priority
         />

@@ -133,13 +133,7 @@ export function Sidebar({ className }: SidebarProps) {
       >
         {!isCollapsed && (
           <div className="flex items-center gap-2">
-            <Image
-              src="/logo.png"
-              alt="Logo"
-              width={50}
-              height={50}
-              className="rounded-md object-contain"
-            />
+            <Image src="/logo.png" alt="Logo" width={72} height={48} className="object-contain" />
             <span className={cn("font-semibold text-md", isRTL ? "mt-1" : "text-left")}>
               {t("navigationLabel")}
             </span>
@@ -150,9 +144,9 @@ export function Sidebar({ className }: SidebarProps) {
           <Image
             src="/logo.png"
             alt="Logo"
-            width={32}
-            height={32}
-            className="rounded-md object-contain mx-auto"
+            width={44}
+            height={29}
+            className="object-contain mx-auto"
           />
         )}
 
