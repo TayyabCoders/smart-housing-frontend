@@ -13,8 +13,8 @@ import { Suspense } from "react";
 import "../globals.css";
 
 export const metadata: Metadata = {
-  title: "NextJS Boilerplate",
-  description: "Created By Muhammad Zahid",
+  title: "habbitat Type One",
+  description: "Created By Muhammad Tayyab",
 };
 
 type Props = {

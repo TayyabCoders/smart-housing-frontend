@@ -80,6 +80,8 @@ import {
   ShieldCheck,
   Vote,
   Lock,
+  MessageCircle,
+  Bot,
   type LucideIcon,
   type LucideProps,
 } from "lucide-react";
@@ -160,6 +162,8 @@ export {
   ShieldCheck,
   Vote,
   Lock,
+  MessageCircle,
+  Bot,
   type LucideIcon,
   type LucideProps,
 };
@@ -227,6 +231,9 @@ export const RadioIcon = Circle;
 export const DragHandleIcon = GripVertical;
 export const SeparatorIcon = Slash;
 export const UserCheckIcon = UserCheck;
+export const ChatIcon = MessageCircle;
+export const VoteIcon = Vote;
+export const ChatbotIcon = Bot;
 
 // Icon size presets for consistency
 export const ICON_SIZES = {

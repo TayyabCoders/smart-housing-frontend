@@ -2,18 +2,15 @@
 
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
-import { Search, Share2, PlusCircle } from "lucide-react";
+import { Share2, PlusCircle } from "lucide-react";
 import { cn } from "@/lib/tailwindUtils/utils";
-import { ChatSidebar } from "./ChatSidebar";
-import type { ChatThread, ChatFilterId } from "../types";
+import type { ChatThread } from "../types";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import { fetchUsers } from "@/redux/slices/user-slice";
 
 interface ChatListProps {
   activeChatId: string | null;
   onSelectChat: (id: string) => void;
-  activeFilter: ChatFilterId;
-  onSelectFilter: (filter: ChatFilterId) => void;
 }
 
 const iconColors = [
@@ -26,12 +23,7 @@ const iconColors = [
   "bg-teal-500",
 ];
 
-export function ChatList({
-  activeChatId,
-  onSelectChat,
-  activeFilter,
-  onSelectFilter,
-}: ChatListProps) {
+export function ChatList({ activeChatId, onSelectChat }: ChatListProps) {
   const t = useTranslations("chat.list");
   const dispatch = useAppDispatch();
   const { users, loading } = useAppSelector((state) => state.users);
@@ -42,31 +34,6 @@ export function ChatList({
 
   return (
     <div className="flex h-full flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border/40">
-        <h2 className="text-xl font-bold flex items-center gap-2">
-          <span>{t("topics")}</span>
-          <span className="text-sm font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-            {loading ? "..." : users.length}
-          </span>
-        </h2>
-      </div>
-
-      {/* Search */}
-      <div className="px-3 pt-3">
-        <div className="relative group">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-          <input
-            type="text"
-            placeholder={t("searchPlaceholder")}
-            className="w-full bg-background/50 border border-border/60 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all font-medium placeholder:text-muted-foreground/70"
-          />
-        </div>
-      </div>
-
-      {/* WhatsApp Style Tabs (Sidebar integrated here) */}
-      <ChatSidebar activeFilter={activeFilter} onSelectFilter={onSelectFilter} />
-
       {/* List */}
       <div className="flex-1 overflow-y-auto px-3 py-2 space-y-1 custom-scrollbar">
         {loading ? (

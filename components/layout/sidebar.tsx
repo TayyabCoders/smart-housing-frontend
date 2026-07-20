@@ -18,6 +18,10 @@ import {
   ActivityIcon,
   FileTextIcon,
   LayoutDashboardIcon,
+  UsersIcon,
+  ChatIcon,
+  VoteIcon,
+  ChatbotIcon,
 } from "@/lib/icons/icons";
 import { Button } from "@/components/ui/button/button";
 import { cn } from "@/lib/tailwindUtils/utils";
@@ -53,7 +57,16 @@ export function Sidebar({ className }: SidebarProps) {
   if (!Array.isArray(allNavItems)) allNavItems = [];
   const navItems = allNavItems.filter((item: any) => isAdmin || !ADMIN_ONLY_HREFS.has(item.href));
 
-  const pickIcon = (title: string) => {
+  const pickIcon = (href: string, title: string) => {
+    if (href === "/") return HomeIcon;
+    if (href === "/dashboard") return BarChartIcon;
+    if (href === "/users") return UsersIcon;
+    if (href === "/chat") return ChatIcon;
+    if (href === "/voting") return VoteIcon;
+    if (href === "/complaints") return FileTextIcon;
+    if (href === "/surveillance") return CameraIcon;
+    if (href === "/chatbot") return ChatbotIcon;
+
     const key = title.toLowerCase();
     if (key.includes("home") || key.includes("ہوم")) return HomeIcon;
     if (key.includes("dashboard") || key.includes("ڈیش بورڈ")) return BarChartIcon;
@@ -64,11 +77,19 @@ export function Sidebar({ className }: SidebarProps) {
 
   const pickChildIcon = (title: string) => {
     const key = title.toLowerCase();
-    if (key.includes("overview") || key.includes("جائزہ") || key.includes("نظرة عامة")) return LayoutDashboardIcon;
+    if (key.includes("overview") || key.includes("جائزہ") || key.includes("نظرة عامة"))
+      return LayoutDashboardIcon;
     if (key.includes("live") || key.includes("لائیو") || key.includes("مباشرة")) return VideoIcon;
     if (key.includes("vehicle") || key.includes("گاڑی") || key.includes("مركبات")) return CarIcon;
-    if (key.includes("facial") || key.includes("face") || key.includes("چہرے") || key.includes("وجوه")) return ScanFaceIcon;
-    if (key.includes("alert") || key.includes("الرٹس") || key.includes("تنبيهات")) return ShieldAlertIcon;
+    if (
+      key.includes("facial") ||
+      key.includes("face") ||
+      key.includes("چہرے") ||
+      key.includes("وجوه")
+    )
+      return ScanFaceIcon;
+    if (key.includes("alert") || key.includes("الرٹس") || key.includes("تنبيهات"))
+      return ShieldAlertIcon;
     if (key.includes("log") || key.includes("لاگز") || key.includes("سجلات")) return FileTextIcon;
     return BarChartIcon;
   };
@@ -158,12 +179,11 @@ export function Sidebar({ className }: SidebarProps) {
       <nav className="flex-1 p-2 space-y-1 overflow-y-auto overflow-x-hidden">
         {navItems.map((item: any) => {
           const hasChildren = item.children && Array.isArray(item.children);
-          const isActive = item.href === "/"
-            ? pathname === "/"
-            : pathname === item.href;
-          const Icon = pickIcon(item.title);
+          const isActive = item.href === "/" ? pathname === "/" : pathname === item.href;
+          const Icon = pickIcon(item.href, item.title);
           const isPathMatch = pathname.startsWith(`${item.href}/`);
-          const isOpen = (openDropdown === item.href || isPathMatch) && manuallyClosed !== item.href;
+          const isOpen =
+            (openDropdown === item.href || isPathMatch) && manuallyClosed !== item.href;
 
           if (hasChildren) {
             return (
@@ -197,7 +217,12 @@ export function Sidebar({ className }: SidebarProps) {
                 >
                   <div className="flex items-center gap-3">
                     <div className="relative flex items-center justify-center">
-                      <Icon className={cn(isTablet ? "h-3.5 w-3.5" : "h-4 w-4", "flex-shrink-0 transition-opacity group-hover:opacity-0")} />
+                      <Icon
+                        className={cn(
+                          isTablet ? "h-3.5 w-3.5" : "h-4 w-4",
+                          "flex-shrink-0 transition-opacity group-hover:opacity-0"
+                        )}
+                      />
                       {!isCollapsed && (
                         <ChevronRight
                           className={cn(
@@ -241,7 +266,9 @@ export function Sidebar({ className }: SidebarProps) {
                             }
                           )}
                         >
-                          <ChildIcon className={cn(isTablet ? "h-3.5 w-3.5" : "h-4 w-4", "flex-shrink-0")} />
+                          <ChildIcon
+                            className={cn(isTablet ? "h-3.5 w-3.5" : "h-4 w-4", "flex-shrink-0")}
+                          />
                           <span className="whitespace-normal line-clamp-2">{child.title}</span>
                         </Link>
                       );
