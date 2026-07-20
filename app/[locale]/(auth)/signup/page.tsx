@@ -12,6 +12,7 @@ import type { FormField } from "@/components/form/types/form";
 import { useAppDispatch } from "@/redux/store";
 import { useCurrentLocale } from "@/hooks/use-current-locale";
 import { googleSignup, signupUser } from "@/redux/slices/signup-slice";
+import { UserIcon, MailIcon, Lock, ShieldCheck } from "@/lib/icons/icons";
 
 export default function SignupPage() {
   const t = useTranslations("auth.signup");
@@ -58,6 +59,7 @@ export default function SignupPage() {
       placeholder: t("nameLabel"),
       required: true,
       className: "text-sm md:text-base",
+      icon: <UserIcon className="h-4 w-4" />,
     },
     {
       id: "email",
@@ -67,6 +69,7 @@ export default function SignupPage() {
       placeholder: t("emailLabel"),
       required: true,
       className: "text-sm md:text-base",
+      icon: <MailIcon className="h-4 w-4" />,
     },
     {
       id: "password",
@@ -76,6 +79,7 @@ export default function SignupPage() {
       placeholder: t("passwordLabel"),
       required: true,
       className: "text-sm md:text-base",
+      icon: <Lock className="h-4 w-4" />,
     },
   ];
 
@@ -109,42 +113,46 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="relative space-y-6">
-      <div className="flex justify-center mb-2">
+    <div className="relative">
+      {/* Logo shown only where the branded image panel is hidden (below lg) */}
+      <div className="flex justify-center mb-6 lg:hidden">
         <Image
           src="/logo.png"
-          alt="Vital-One Logo"
-          width={150}
-          height={150}
-          className="object-contain"
+          alt="Smart Housing"
+          width={64}
+          height={64}
+          className="object-contain rounded-lg"
           priority
         />
       </div>
-      <div className="space-y-2 text-center">
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">{t("title")}</h1>
-        <p className="text-muted-foreground text-sm md:text-base">{t("subtitle")}</p>
-      </div>
-      {/* Google Signup Button - Uses Google Identity Services */}
-      <div className="w-full flex justify-center">
-        <GoogleLogin
-          onSuccess={handleGoogleSuccess}
-          onError={handleGoogleError}
-          useOneTap
-          size="large"
-          width="384"
-        />
-      </div>
-      {/* Divider */}
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
-        </div>
-      </div>
 
-      <div className="space-y-4">
+      <div className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-sm space-y-6">
+        <div className="space-y-1.5 text-center">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">{t("title")}</h1>
+          <p className="text-muted-foreground text-sm md:text-base">{t("subtitle")}</p>
+        </div>
+
+        {/* Google Signup Button - Uses Google Identity Services */}
+        <div className="w-full flex justify-center">
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={handleGoogleError}
+            useOneTap
+            size="large"
+            width="384"
+          />
+        </div>
+
+        {/* Divider */}
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
+          </div>
+        </div>
+
         <BaseForm
           fields={formFields}
           onSubmit={onSubmit}
@@ -172,19 +180,24 @@ export default function SignupPage() {
             </button>
           )}
         />
+
+        <div className="text-center text-sm md:text-base text-muted-foreground">
+          <p>
+            {t("hasAccountText")}{" "}
+            <Link
+              href={`/${locale}/login`}
+              className="underline hover:text-primary cursor-pointer transition-colors font-medium"
+            >
+              {t("loginLink")}
+            </Link>
+          </p>
+        </div>
       </div>
 
-      <div className="text-center text-sm md:text-base text-muted-foreground">
-        <p>
-          {t("hasAccountText")}{" "}
-          <Link
-            href={`/${locale}/login`}
-            className="underline hover:text-primary cursor-pointer transition-colors font-medium"
-          >
-            {t("loginLink")}
-          </Link>
-        </p>
-      </div>
+      <p className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground mt-4">
+        <ShieldCheck className="h-3.5 w-3.5" />
+        Your data is encrypted and never shared with third parties
+      </p>
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { BaseField } from "../base-field";
 import { FormField } from "@/components/form/types/form";
 import { Eye, EyeOff } from "@/lib/icons/icons";
+import { cn } from "@/lib/tailwindUtils/utils";
 
 export const InputField = ({ field }: { field: FormField }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -14,10 +15,10 @@ export const InputField = ({ field }: { field: FormField }) => {
   return (
     <BaseField
       field={field}
-      renderInput={({ onChange, value, ...props }: any) => (
+      renderInput={({ onChange, value, className, ...props }: any) => (
         <div className="relative">
           {field.icon && (
-            <span className="pointer-events-none absolute left-3 top-1/2 flex -translate-y-1/2 items-center">
+            <span className="pointer-events-none absolute left-3 top-1/2 flex -translate-y-1/2 items-center text-muted-foreground">
               {field.icon}
             </span>
           )}
@@ -28,7 +29,7 @@ export const InputField = ({ field }: { field: FormField }) => {
             onChange={(e) => onChange(e.target.value)}
             value={value ?? ""}
             disabled={field.disabled}
-            className={isPassword ? "pr-10" : ""}
+            className={cn(className, isPassword && "pr-10", field.icon && "pl-10")}
             {...props}
           />
 

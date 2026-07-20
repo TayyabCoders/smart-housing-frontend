@@ -220,11 +220,11 @@
   --tw-rotate: -180deg;
 }
 
-[dir="rtl"] .rtl\:space-x-reverse> :not([hidden])~ :not([hidden]) {
+[dir="rtl"] .rtl\:space-x-reverse > :not([hidden]) ~ :not([hidden]) {
   --tw-space-x-reverse: 1;
 }
 
-[dir="rtl"] .rtl\:divide-x-reverse> :not([hidden])~ :not([hidden]) {
+[dir="rtl"] .rtl\:divide-x-reverse > :not([hidden]) ~ :not([hidden]) {
   --tw-divide-x-reverse: 1;
 }
 
@@ -400,4 +400,90 @@
 
 .animate-scan {
   animation: scan 2s linear infinite;
+}
+
+/* Landing page scroll-reveal + marquee */
+.sr {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease;
+}
+.sr.sr-left {
+  transform: translateX(-24px);
+}
+.sr.sr-right {
+  transform: translateX(24px);
+}
+.sr.sr-scale {
+  transform: scale(0.94);
+}
+.sr.in {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+.d-0 {
+  transition-delay: 0ms;
+}
+.d-1 {
+  transition-delay: 80ms;
+}
+.d-2 {
+  transition-delay: 160ms;
+}
+.d-3 {
+  transition-delay: 240ms;
+}
+.d-4 {
+  transition-delay: 320ms;
+}
+.d-5 {
+  transition-delay: 400ms;
+}
+
+@keyframes heroIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 28s linear infinite;
+}
+
+.hero-1 {
+  opacity: 0;
+  animation: heroIn 0.7s ease 0.1s forwards;
+}
+.hero-2 {
+  opacity: 0;
+  animation: heroIn 0.7s ease 0.25s forwards;
+}
+.hero-3 {
+  opacity: 0;
+  animation: heroIn 0.7s ease 0.4s forwards;
+}
+.hero-4 {
+  opacity: 0;
+  animation: heroIn 0.7s ease 0.55s forwards;
+}
+.hero-5 {
+  opacity: 0;
+  animation: heroIn 0.7s ease 0.7s forwards;
 }

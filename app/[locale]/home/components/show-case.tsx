@@ -58,8 +58,8 @@ export function ShowcaseSection() {
             <div className="relative rounded-2xl overflow-hidden border border-gray-300 dark:border-gray-800 bg-gray-100 dark:bg-gray-900/50 backdrop-blur-sm p-8 transition-colors duration-300 h-full w-full flex flex-col justify-center">
               <div className="relative rounded-lg overflow-hidden w-full h-[600px] lg:h-[700px]">
                 <Image
-                  src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&q=80"
-                  alt="Showcase"
+                  src="https://images.unsplash.com/photo-1558002038-1055907df827?w=1200&q=80"
+                  alt={t("showcase.imageAlt")}
                   fill
                   className="object-cover"
                   priority

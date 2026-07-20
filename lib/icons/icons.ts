@@ -77,6 +77,9 @@ import {
   Car,
   ScanFace,
   LayoutDashboard,
+  ShieldCheck,
+  Vote,
+  Lock,
   type LucideIcon,
   type LucideProps,
 } from "lucide-react";
@@ -154,6 +157,9 @@ export {
   Car,
   ScanFace,
   LayoutDashboard,
+  ShieldCheck,
+  Vote,
+  Lock,
   type LucideIcon,
   type LucideProps,
 };
