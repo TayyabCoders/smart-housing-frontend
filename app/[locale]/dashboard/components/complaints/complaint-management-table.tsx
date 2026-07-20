@@ -12,7 +12,11 @@ interface ComplaintManagementTableProps {
   onRefresh?: () => void;
 }
 
-export function ComplaintManagementTable({ data = [], isLoading = false, onRefresh }: ComplaintManagementTableProps) {
+export function ComplaintManagementTable({
+  data = [],
+  isLoading = false,
+  onRefresh,
+}: ComplaintManagementTableProps) {
   const t = useTranslations("dashboard");
 
   const columns: ColumnDef<Complaint>[] = [
@@ -57,12 +61,12 @@ export function ComplaintManagementTable({ data = [], isLoading = false, onRefre
         // Handle: snake_case (in_progress), PascalCase (In_Progress), and camelCase (InProgress)
         const normalizedStatus = status
           .toLowerCase()
-          .replace(/_/g, '_')
-          .replace(/inprogress/g, 'in_progress')
-          .replace(/resolved/g, 'resolved')
-          .replace(/pending/g, 'pending')
-          .replace(/rejected/g, 'rejected');
-        
+          .replace(/_/g, "_")
+          .replace(/inprogress/g, "in_progress")
+          .replace(/resolved/g, "resolved")
+          .replace(/pending/g, "pending")
+          .replace(/rejected/g, "rejected");
+
         const statusStyles: Record<string, string> = {
           pending: "bg-yellow-100 text-yellow-800",
           in_progress: "bg-blue-100 text-blue-800",
@@ -76,7 +80,9 @@ export function ComplaintManagementTable({ data = [], isLoading = false, onRefre
           rejected: t("complaints.status.rejected"),
         };
         return (
-          <div className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${statusStyles[normalizedStatus] || "bg-gray-100 text-gray-800"}`}>
+          <div
+            className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${statusStyles[normalizedStatus] || "bg-gray-100 text-gray-800"}`}
+          >
             {statusLabels[normalizedStatus] || status}
           </div>
         );
@@ -101,79 +107,26 @@ export function ComplaintManagementTable({ data = [], isLoading = false, onRefre
     },
   ];
 
-  // Mock data for demonstration
-  const mockData: Complaint[] = [
-    {
-      id: "1",
-      fullname: "John Doe",
-      gender: "male",
-      complaint_detail: "Water supply issue in Block A",
-      tracking_id: "CMP-2024-001",
-      status: "pending",
-      date: "2024-01-15",
-      created_at: "2024-01-15T10:30:00",
-      updated_at: "2024-01-15T10:30:00",
-    },
-    {
-      id: "2",
-      fullname: "Jane Smith",
-      gender: "female",
-      complaint_detail: "Street light not working",
-      tracking_id: "CMP-2024-002",
-      status: "in_progress",
-      date: "2024-01-14",
-      created_at: "2024-01-14T14:20:00",
-      updated_at: "2024-01-15T09:15:00",
-    },
-    {
-      id: "3",
-      fullname: "Bob Johnson",
-      gender: "male",
-      complaint_detail: "Garbage collection delay",
-      tracking_id: "CMP-2024-003",
-      status: "resolved",
-      date: "2024-01-13",
-      created_at: "2024-01-13T08:45:00",
-      updated_at: "2024-01-14T16:30:00",
-    },
-    {
-      id: "4",
-      fullname: "Alice Brown",
-      gender: "female",
-      complaint_detail: "Road damage near main gate",
-      tracking_id: "CMP-2024-004",
-      status: "pending",
-      date: "2024-01-12",
-      created_at: "2024-01-12T11:00:00",
-      updated_at: "2024-01-12T11:00:00",
-    },
-    {
-      id: "5",
-      fullname: "Charlie Wilson",
-      gender: "male",
-      complaint_detail: "Noise complaint from neighbor",
-      tracking_id: "CMP-2024-005",
-      status: "rejected",
-      date: "2024-01-11",
-      created_at: "2024-01-11T15:30:00",
-      updated_at: "2024-01-12T10:00:00",
-    },
-  ];
-
-  const tableData = data.length > 0 ? data : mockData;
-
   return (
     <section className="space-y-6">
       <div className="mb-8">
         <h2 className="text-2xl font-bold tracking-tight">{t("complaints.title")}</h2>
         <p className="text-muted-foreground">{t("complaints.description")}</p>
       </div>
-      <DataTable
-        columns={columns}
-        data={tableData}
-        pageCount={1}
-        emptyMessage={t("complaints.noData")}
-      />
+      {isLoading ? (
+        <div className="space-y-3">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="h-12 rounded-md bg-muted/40 animate-pulse" />
+          ))}
+        </div>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={data}
+          pageCount={1}
+          emptyMessage={t("complaints.noData")}
+        />
+      )}
     </section>
   );
 }

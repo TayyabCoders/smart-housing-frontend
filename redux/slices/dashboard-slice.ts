@@ -16,7 +16,7 @@ interface DashboardState {
 
 const initialState: DashboardState = {
   metrics: null,
-  loading: false,
+  loading: true,
   error: null,
 };
 

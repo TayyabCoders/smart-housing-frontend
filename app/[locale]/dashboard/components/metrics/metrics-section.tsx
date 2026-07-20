@@ -23,20 +23,12 @@ interface MetricsSectionProps {
 
 export function MetricsSection({ data, isLoading = false }: MetricsSectionProps) {
   const t = useTranslations("dashboard");
-  // Default mock data if none provided
-  const defaultData: MetricData = {
-    totalUsers: 12543,
-    totalComplaints: 832,
-    pendingComplaints: 145,
-    totalVoters: 5421,
-  };
-
-  const metricsData = data || defaultData;
+  const metricsData = data ?? null;
 
   const metrics = [
     {
       title: t("metrics.totalUsers"),
-      value: metricsData.totalUsers,
+      value: metricsData?.totalUsers ?? 0,
       // change: 12.5,
       // changeType: "increase" as const,
       icon: Users,
@@ -45,7 +37,7 @@ export function MetricsSection({ data, isLoading = false }: MetricsSectionProps)
     },
     {
       title: t("metrics.totalComplaints"),
-      value: metricsData.totalComplaints,
+      value: metricsData?.totalComplaints ?? 0,
       // change: 8.2,
       // changeType: "increase" as const,
       icon: Activity,
@@ -54,7 +46,7 @@ export function MetricsSection({ data, isLoading = false }: MetricsSectionProps)
     },
     {
       title: t("metrics.pendingComplaints"),
-      value: metricsData.pendingComplaints,
+      value: metricsData?.pendingComplaints ?? 0,
       // change: 15.3,
       // changeType: "increase" as const,
       icon: DollarSign,
@@ -64,7 +56,7 @@ export function MetricsSection({ data, isLoading = false }: MetricsSectionProps)
     },
     {
       title: t("metrics.totalVoters"),
-      value: metricsData.totalVoters,
+      value: metricsData?.totalVoters ?? 0,
       // change: -2.1,
       // changeType: "decrease" as const,
       icon: Percent,

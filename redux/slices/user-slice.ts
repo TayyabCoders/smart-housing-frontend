@@ -25,7 +25,7 @@ interface UserState {
 const initialState: UserState = {
   users: [],
   currentUser: null,
-  loading: false,
+  loading: true,
   error: null,
   pagination: {
     page: 1,

@@ -15,7 +15,7 @@ interface ComplaintState {
 
 const initialState: ComplaintState = {
   complaints: [],
-  loading: false,
+  loading: true,
   error: null,
   total: 0,
   pending: 0,
@@ -60,23 +60,33 @@ export const createComplaint = createAsyncThunk(
 // ✅ Update complaint status
 export const updateComplaintStatus = createAsyncThunk(
   "complaints/updateComplaintStatus",
-  async ({ id, status }: { id: string; status: "pending" | "in_progress" | "resolved" | "rejected" }) => {
+  async ({
+    id,
+    status,
+  }: {
+    id: string;
+    status: "pending" | "in_progress" | "resolved" | "rejected";
+  }) => {
     // Map snake_case to PascalCase for API
     const statusMapping: Record<string, string> = {
-      'pending': 'Pending',
-      'in_progress': 'In_Progress',
-      'resolved': 'Resolved',
-      'rejected': 'Rejected'
+      pending: "Pending",
+      in_progress: "In_Progress",
+      resolved: "Resolved",
+      rejected: "Rejected",
     };
-    
-    const response = await axiosInstance.put<Complaint>(`/complaint/${id}/`, { status: statusMapping[status] });
-    
+
+    const response = await axiosInstance.put<Complaint>(`/complaint/${id}/`, {
+      status: statusMapping[status],
+    });
+
     // Transform response status back to snake_case
     const transformedData = {
       ...response.data,
-      status: Object.keys(statusMapping).find(key => statusMapping[key] === response.data.status) || response.data.status.toLowerCase()
+      status:
+        Object.keys(statusMapping).find((key) => statusMapping[key] === response.data.status) ||
+        response.data.status.toLowerCase(),
     };
-    
+
     return transformedData;
   }
 );
@@ -135,7 +145,7 @@ const complaintSlice = createSlice({
         }
         state.complaints.unshift(action.payload);
         state.total += 1;
-        if (action.payload.status === 'pending') {
+        if (action.payload.status === "pending") {
           state.pending += 1;
         }
       })
@@ -152,22 +162,24 @@ const complaintSlice = createSlice({
       .addCase(updateComplaintStatus.fulfilled, (state, action) => {
         state.loading = false;
         const updatedComplaint = action.payload;
-        const index = state.complaints.findIndex((complaint) => complaint.id === updatedComplaint.id);
+        const index = state.complaints.findIndex(
+          (complaint) => complaint.id === updatedComplaint.id
+        );
         if (index !== -1) {
           const oldStatus = state.complaints[index].status;
           const newStatus = updatedComplaint.status;
-          
+
           // Update counts based on status change
-          if (oldStatus === 'pending') state.pending -= 1;
-          if (oldStatus === 'in_progress') state.in_progress -= 1;
-          if (oldStatus === 'resolved') state.resolved -= 1;
-          if (oldStatus === 'rejected') state.rejected -= 1;
-          
-          if (newStatus === 'pending') state.pending += 1;
-          if (newStatus === 'in_progress') state.in_progress += 1;
-          if (newStatus === 'resolved') state.resolved += 1;
-          if (newStatus === 'rejected') state.rejected += 1;
-          
+          if (oldStatus === "pending") state.pending -= 1;
+          if (oldStatus === "in_progress") state.in_progress -= 1;
+          if (oldStatus === "resolved") state.resolved -= 1;
+          if (oldStatus === "rejected") state.rejected -= 1;
+
+          if (newStatus === "pending") state.pending += 1;
+          if (newStatus === "in_progress") state.in_progress += 1;
+          if (newStatus === "resolved") state.resolved += 1;
+          if (newStatus === "rejected") state.rejected += 1;
+
           state.complaints[index] = updatedComplaint;
         }
       })
@@ -185,16 +197,16 @@ const complaintSlice = createSlice({
         state.loading = false;
         const id = action.payload;
         const complaintToDelete = state.complaints.find((complaint) => complaint.id === id);
-        
+
         if (complaintToDelete) {
           // Decrement counts based on the deleted complaint's status
-          if (complaintToDelete.status === 'pending') state.pending -= 1;
-          if (complaintToDelete.status === 'in_progress') state.in_progress -= 1;
-          if (complaintToDelete.status === 'resolved') state.resolved -= 1;
-          if (complaintToDelete.status === 'rejected') state.rejected -= 1;
+          if (complaintToDelete.status === "pending") state.pending -= 1;
+          if (complaintToDelete.status === "in_progress") state.in_progress -= 1;
+          if (complaintToDelete.status === "resolved") state.resolved -= 1;
+          if (complaintToDelete.status === "rejected") state.rejected -= 1;
           state.total -= 1;
         }
-        
+
         state.complaints = state.complaints.filter((complaint) => complaint.id !== id);
       })
       .addCase(deleteComplaint.rejected, (state, action) => {
