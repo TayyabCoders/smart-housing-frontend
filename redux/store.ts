@@ -8,6 +8,7 @@ import usersReducer from "./slices/user-slice";
 import loginReducer from "./slices/login-slice";
 import signupReducer from "./slices/signup-slice";
 import complaintsReducer from "./slices/complaint-slice";
+import announcementsReducer from "./slices/announcement-slice";
 import votingReducer from "./slices/voting-slice";
 import dashboardReducer from "./slices/dashboard-slice";
 import chatbotReducer from "./slices/chatbot-slice";
@@ -41,6 +42,7 @@ const rootReducer = combineReducers({
   voting: votingReducer,
   signup: signupReducer,
   complaints: complaintsReducer,
+  announcements: announcementsReducer,
   dashboard: dashboardReducer,
   chatbot: chatbotReducer,
   chat: chatReducer,

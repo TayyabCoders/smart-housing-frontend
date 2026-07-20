@@ -57,8 +57,9 @@ export function DynamicLayout({ children, className }: DynamicLayoutProps) {
         )}
         <main
           className={cn(
-            "min-h-screen pt-16 transition-all duration-300 ease-in-out",
+            "min-h-screen transition-all duration-300 ease-in-out",
             width < 640 ? "p-3" : isTablet ? "p-4" : "p-6",
+            "pt-16", // must come after the responsive p-* class so twMerge keeps this override
             showSidebar && !state.sidebarCollapsed && "ms-64", // margin-inline-start for RTL
             showSidebar && state.sidebarCollapsed && "ms-16",
             "transform-gpu will-change-[margin]"
