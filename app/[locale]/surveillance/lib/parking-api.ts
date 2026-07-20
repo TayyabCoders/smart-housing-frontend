@@ -209,3 +209,23 @@ export async function fetchTodayStats(): Promise<AccessStatsToday> {
   if (!res.ok) throw new Error(`Failed to fetch stats (${res.status})`);
   return res.json();
 }
+
+// ── Camera API ────────────────────────────────────────────────────────────────
+
+export interface CameraInfo {
+  id: string;
+  code: string;
+  name: string;
+  location: string | null;
+  type: string;
+  is_active: boolean;
+}
+
+export async function fetchCameraByType(
+  type: "face" | "plate" | "both"
+): Promise<CameraInfo | null> {
+  const res = await fetch(`${PARKING_API}/api/v1/camera?type=${type}&active_only=true`);
+  if (!res.ok) return null;
+  const cameras: CameraInfo[] = await res.json();
+  return cameras[0] ?? null;
+}

@@ -44,16 +44,13 @@ import {
   updateVehicleStatus,
   grantAccess,
   denyAccess,
+  fetchCameraByType,
   DetectResult,
 } from "../lib/parking-api";
 import { useAccessLog } from "../hooks/useAccessLog";
 import { RegisterVehicleDialog } from "./RegisterVehicleDialog";
 
 type SurveillanceView = "all" | "live" | "vehicle" | "face" | "alerts" | "logs";
-
-// Only one FACE-type camera is seeded on the backend (CAM-004 · Lobby Entrance);
-// real detect/enroll calls always target it regardless of the mock camera dropdown.
-const FACE_CAMERA_ID = "7825199d-800d-43be-8842-397aca6412f4";
 
 function faceRowProps(d: FaceDetectionResult) {
   return {
@@ -82,8 +79,13 @@ export default function SurveillanceContainer({ defaultView = "all" }: Surveilla
   const faceStats = useAppSelector((s) => s.faceDetection.stats);
   const faceDetections = useAppSelector((s) => s.faceDetection.detections);
 
+  const [faceCameraId, setFaceCameraId] = useState<string | null>(null);
+
   useEffect(() => {
     dispatch(listFaceDetections());
+    fetchCameraByType("face").then((cam) => {
+      if (cam) setFaceCameraId(cam.id);
+    });
   }, [dispatch]);
 
   const totalAlerts = accessStats.blacklist_hits + accessStats.unknown;
@@ -152,6 +154,7 @@ export default function SurveillanceContainer({ defaultView = "all" }: Surveilla
           t={t}
           stats={faceStats}
           detections={faceDetections}
+          faceCameraId={faceCameraId}
         />
       )}
       {defaultView === "alerts" && <AlertsTab t={t} />}
@@ -238,7 +241,11 @@ function AllTab({ t, faceDetections }: { t: any; faceDetections: FaceDetectionRe
                 confidence={92}
                 status={
                   (statusBadgeClass[log.vehicle_status] ?? "unknown") as
-                    "resident" | "staff" | "visitor" | "blacklist" | "unknown"
+                    | "resident"
+                    | "staff"
+                    | "visitor"
+                    | "blacklist"
+                    | "unknown"
                 }
               />
             ))}
@@ -579,11 +586,13 @@ function FaceTab({
   t,
   stats,
   detections,
+  faceCameraId,
 }: {
   camera: string;
   setCamera: (v: string) => void;
   cameras: any[];
   t: any;
+  faceCameraId: string | null;
   stats: {
     total: number;
     residents: number;
@@ -603,7 +612,7 @@ function FaceTab({
   const handleFrame = (blob: Blob) => {
     if (inFlight.current) return;
     inFlight.current = true;
-    dispatch(detectFace({ image: blob, cameraId: FACE_CAMERA_ID }))
+    dispatch(detectFace({ image: blob, cameraId: faceCameraId ?? "" }))
       .unwrap()
       .catch(() => {
         dispatch(clearLiveResult());
@@ -745,7 +754,7 @@ function FaceTab({
         </TabsContent>
 
         <TabsContent value="upload" className="mt-4">
-          <FaceUploadPane t={t} />
+          <FaceUploadPane t={t} faceCameraId={faceCameraId} />
         </TabsContent>
 
         <TabsContent value="watchlist" className="mt-4">
@@ -1565,7 +1574,7 @@ function VehicleUploadPane({
   );
 }
 
-function FaceUploadPane({ t }: { t: any }) {
+function FaceUploadPane({ t, faceCameraId }: { t: any; faceCameraId: string | null }) {
   const dispatch = useAppDispatch();
   const [preview, setPreview] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
@@ -1582,7 +1591,9 @@ function FaceUploadPane({ t }: { t: any }) {
     if (!file) return;
     setLoading(true);
     try {
-      const res = await dispatch(detectFace({ image: file, cameraId: FACE_CAMERA_ID })).unwrap();
+      const res = await dispatch(
+        detectFace({ image: file, cameraId: faceCameraId ?? "" })
+      ).unwrap();
       setResult(res);
       dispatch(listFaceDetections());
     } catch {
